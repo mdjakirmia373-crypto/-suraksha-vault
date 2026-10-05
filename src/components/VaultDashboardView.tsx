@@ -319,7 +319,7 @@ export const VaultDashboardView: React.FC<VaultDashboardViewProps> = ({
             </div>
             <div>
               <p className="text-xs font-bold text-white leading-tight">
-                ক্লাউড আইডি: <span className="text-[#00FF88] font-mono">mai319349@gmail.com</span>
+                ক্লাউড আইডি: <span className="text-[#00FF88] font-mono">vault.secure.sync@suraksha.com</span>
               </p>
               <p className="text-[11px] text-slate-400 mt-0.5">
                 {syncStatus === 'syncing' ? 'সিঙ্ক হচ্ছে...' : 'সর্বশেষ সিঙ্ক: আজ ০৪:৪৬ PM (এনক্রিপ্টেড)'}

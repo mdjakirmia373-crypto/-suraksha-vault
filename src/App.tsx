@@ -19,11 +19,15 @@ import { PrivacyModal } from './components/PrivacyModal';
 import { SupportModal } from './components/SupportModal';
 import { UserDashboardPage } from './components/UserDashboardPage';
 import { usePWAInstall } from './hooks/usePWAInstall';
+import { UserAccount, getActiveSession, clearActiveSession } from './utils/authStorage';
 import { Sparkles } from 'lucide-react';
 
 export default function App() {
-  const [currentUser, setCurrentUser] = useState<{ name: string; email: string } | null>(null);
-  const [currentView, setCurrentView] = useState<'landing' | 'dashboard'>('landing');
+  // Session persistence: If already logged in, automatically stay on dashboard page!
+  const [currentUser, setCurrentUser] = useState<UserAccount | null>(() => getActiveSession());
+  const [currentView, setCurrentView] = useState<'landing' | 'dashboard'>(() => {
+    return getActiveSession() ? 'dashboard' : 'landing';
+  });
 
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [authMode, setAuthMode] = useState<'login' | 'signup'>('login');
@@ -63,18 +67,20 @@ export default function App() {
     setAuthModalOpen(true);
   };
 
-  const handleAuthSuccess = (user: { name: string; email: string }) => {
+  const handleAuthSuccess = (user: UserAccount) => {
     setCurrentUser(user);
     setCurrentView('dashboard');
     setAuthModalOpen(false);
   };
 
   const handleLogout = () => {
+    clearActiveSession();
     setCurrentUser(null);
     setCurrentView('landing');
   };
 
   // If user is logged in and views the Personal Vault Dashboard Page
+  // This page STAYS active across refreshes and visits until the user clicks Logout
   if (currentView === 'dashboard' && currentUser) {
     return (
       <div className="min-h-screen bg-[#070B14]">
@@ -132,7 +138,7 @@ export default function App() {
             <div className="text-center mb-10">
               <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-slate-900 border border-[#00FF88]/30 text-xs text-[#00FF88] font-bold mb-2 shadow-sm">
                 <Sparkles className="w-3.5 h-3.5" />
-                <span>লাইভ অ্যাপ ড্যাশবোর্ড</span>
+                <span>লাইভ অ্যাপ ড্যাশবোর্ড অভিজ্ঞতা</span>
               </div>
               <h2 className="text-2xl sm:text-3xl font-extrabold text-white">
                 সুরক্ষা ভল্ট সরাসরি ওয়েবে অভিজ্ঞতা নিন

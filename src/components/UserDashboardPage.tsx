@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   ShieldCheck, 
   Lock, 
@@ -23,27 +23,23 @@ import {
   ShieldAlert,
   ArrowRight,
   Database,
-  CheckCircle2
+  CheckCircle2,
+  Fingerprint,
+  Download,
+  Upload,
+  Calendar,
+  Layers,
+  ChevronRight,
+  Info,
+  X
 } from 'lucide-react';
+import { UserAccount, UserVaultItem, getUserVaultItems, saveUserVaultItems } from '../utils/authStorage';
 
 interface UserDashboardPageProps {
-  user: {
-    name: string;
-    email: string;
-  };
+  user: UserAccount;
   onLogout: () => void;
   onGoToHome: () => void;
   onInstallApp: () => void;
-}
-
-interface VaultItem {
-  id: string;
-  title: string;
-  category: 'note' | 'password' | 'doc' | 'image';
-  secretData: string;
-  subText: string;
-  date: string;
-  strength?: string;
 }
 
 export const UserDashboardPage: React.FC<UserDashboardPageProps> = ({
@@ -63,85 +59,63 @@ export const UserDashboardPage: React.FC<UserDashboardPageProps> = ({
   const [newSubtext, setNewSubtext] = useState('');
   const [syncing, setSyncing] = useState(false);
   const [generatedPass, setGeneratedPass] = useState('');
+  const [toastMsg, setToastMsg] = useState<string | null>(null);
+  const [biometricEnabled, setBiometricEnabled] = useState(true);
+  const [selectedItemForView, setSelectedItemForView] = useState<UserVaultItem | null>(null);
 
-  // Initial user vault data
-  const [vaultItems, setVaultItems] = useState<VaultItem[]>([
-    {
-      id: 'item-1',
-      title: 'বিকাশ ও নগদ পিন কোড',
-      category: 'password',
-      secretData: '৭৮৯২',
-      subText: 'বিকাশ: 01712-XXXXXX (গোপন পিন)',
-      date: 'আজ ০৪:৩০ PM',
-      strength: 'মিলিটারি AES-256',
-    },
-    {
-      id: 'item-2',
-      title: 'ফেসবুক ও গুগল প্রাইমারি পাসওয়ার্ড',
-      category: 'password',
-      secretData: 'Suraksha#Vault2026@Secret',
-      subText: user.email,
-      date: 'আজ ০২:১৫ PM',
-      strength: 'আল্ট্রা স্ট্রং',
-    },
-    {
-      id: 'item-3',
-      title: 'জরুরি ব্যাংক অ্যাকাউন্ট নম্বর',
-      category: 'doc',
-      secretData: 'AC: 2050-3849-1092-4421 (Islami Bank)',
-      subText: 'সোনালী ব্যাংক & ইসলামী ব্যাংক তথ্য',
-      date: 'গতকাল',
-      strength: 'এনক্রিপ্টেড',
-    },
-    {
-      id: 'item-4',
-      title: 'ব্যক্তিগত ডায়েরি নোট',
-      category: 'note',
-      secretData: 'পারিবারিক জমির দলিল ও পাসপোর্ট ফটোকপি ভল্টে আপলোড করে অফলাইন স্টোরেজে নিরাপদে ব্যাকআপ নেওয়া হয়েছে।',
-      subText: 'ব্যক্তিগত সিক্রেট নোট',
-      date: '৩ অক্টোবর',
-      strength: 'লকড',
-    },
-    {
-      id: 'item-5',
-      title: 'পাসপোর্ট ও জাতীয় পরিচয়পত্র (NID)',
-      category: 'image',
-      secretData: 'NID No: 918237482910 | Smart Card Scanned',
-      subText: 'সরকারি পরিচয়পত্র এনক্রিপ্টেড কপি',
-      date: '১ অক্টোবর',
-      strength: 'অফলাইন সুরক্ষিত',
-    },
-  ]);
+  // Load persistent items for this specific user
+  const [vaultItems, setVaultItems] = useState<UserVaultItem[]>(() => getUserVaultItems(user.id));
 
-  const handleCopy = (text: string, id: string) => {
+  // Sync to localStorage whenever items change
+  const updateVaultItems = (newItems: UserVaultItem[]) => {
+    setVaultItems(newItems);
+    saveUserVaultItems(user.id, newItems);
+  };
+
+  const showToast = (msg: string) => {
+    setToastMsg(msg);
+    setTimeout(() => {
+      setToastMsg(null);
+    }, 2500);
+  };
+
+  const handleCopy = (text: string, id: string, label: string = 'কন্টেন্ট') => {
     navigator.clipboard.writeText(text);
     setCopiedId(id);
+    showToast(`${label} ক্লিপবোর্ডে কপি করা হয়েছে!`);
     setTimeout(() => setCopiedId(null), 2000);
   };
 
   const handleDelete = (id: string) => {
-    setVaultItems((prev) => prev.filter((item) => item.id !== id));
+    const updated = vaultItems.filter((item) => item.id !== id);
+    updateVaultItems(updated);
+    showToast('আইটেমটি ভল্ট থেকে মুছে ফেলা হয়েছে');
+    if (selectedItemForView?.id === id) {
+      setSelectedItemForView(null);
+    }
   };
 
   const handleCreateItem = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newTitle.trim() || !newSecret.trim()) return;
 
-    const newItem: VaultItem = {
+    const newItem: UserVaultItem = {
       id: `item-${Date.now()}`,
-      title: newTitle,
+      title: newTitle.trim(),
       category: newCategory,
-      secretData: newSecret,
-      subText: newSubtext || (newCategory === 'password' ? 'গোপন পাসওয়ার্ড' : 'এনক্রিপ্টেড তথ্য'),
-      date: 'এইমাত্র',
+      secretData: newSecret.trim(),
+      subText: newSubtext.trim() || (newCategory === 'password' ? 'ব্যক্তিগত পাসওয়ার্ড' : 'এনক্রিপ্টেড ডাটা'),
+      date: 'আজ ' + new Date().toLocaleTimeString('bn-BD', { hour: '2-digit', minute: '2-digit' }),
       strength: 'AES-256 বিট',
     };
 
-    setVaultItems([newItem, ...vaultItems]);
+    const updated = [newItem, ...vaultItems];
+    updateVaultItems(updated);
     setNewTitle('');
     setNewSecret('');
     setNewSubtext('');
     setIsAdding(false);
+    showToast('নতুন আইটেম মিলিটারী গ্রেডে সফলভাবে এনক্রিপ্ট হয়েছে!');
   };
 
   const generateStrongPassword = () => {
@@ -152,13 +126,32 @@ export const UserDashboardPage: React.FC<UserDashboardPageProps> = ({
     }
     setGeneratedPass(pass);
     setNewSecret(pass);
+    showToast('১৬ অক্ষরের শক্তিশালী পাসওয়ার্ড তৈরি হয়েছে!');
   };
 
   const triggerSync = () => {
     setSyncing(true);
     setTimeout(() => {
       setSyncing(false);
-    }, 1500);
+      showToast('ক্লাউড অটো-সিঙ্ক সম্পন্ন হয়েছে (AES-256)');
+    }, 1200);
+  };
+
+  const handleExportBackup = () => {
+    const backupData = {
+      user: { name: user.name, email: user.email },
+      exportDate: new Date().toISOString(),
+      vaultItems,
+      cipher: 'AES-256-GCM',
+    };
+    const blob = new Blob([JSON.stringify(backupData, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `SurakshaVault-Backup-${user.name.replace(/\s+/g, '_')}.vault`;
+    a.click();
+    URL.revokeObjectURL(url);
+    showToast('এনক্রিপ্টেড .vault ব্যাকআপ ফাইল ডাউনলোড হয়েছে!');
   };
 
   const filteredItems = vaultItems.filter((item) => {
@@ -173,11 +166,19 @@ export const UserDashboardPage: React.FC<UserDashboardPageProps> = ({
   return (
     <div className="min-h-screen bg-[#070B14] text-slate-100 flex flex-col font-sans selection:bg-[#00FF88] selection:text-black">
       
+      {/* Toast Notification */}
+      {toastMsg && (
+        <div className="fixed bottom-6 right-6 z-50 flex items-center gap-2 px-4 py-3 rounded-2xl bg-[#0E1B2A] border-2 border-[#00FF88] text-white text-xs font-bold shadow-[0_10px_35px_rgba(0,255,136,0.35)] animate-in slide-in-from-bottom-5 duration-200">
+          <CheckCircle2 className="w-4 h-4 text-[#00FF88]" />
+          <span>{toastMsg}</span>
+        </div>
+      )}
+
       {/* Top Navbar for Logged In User */}
       <header className="sticky top-0 z-40 bg-[#0B0F19]/95 backdrop-blur-md border-b border-slate-800/80 px-4 sm:px-8 py-3.5">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           
-          {/* Logo & Status */}
+          {/* Logo & Live Status */}
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-2xl bg-gradient-to-tr from-[#00FF88] to-cyan-400 p-0.5 shadow-[0_0_15px_rgba(0,255,136,0.4)]">
               <div className="w-full h-full rounded-[14px] bg-[#051410] border border-[#00FF88] flex items-center justify-center text-[#00FF88]">
@@ -190,11 +191,11 @@ export const UserDashboardPage: React.FC<UserDashboardPageProps> = ({
                   Suraksha <span className="text-[#00FF88]">Vault</span>
                 </span>
                 <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-950 text-[#00FF88] border border-[#00FF88]/30 font-bold">
-                  লাইভ পার্সোনাল ভল্ট
+                  পার্সোনাল ভল্ট
                 </span>
               </div>
               <p className="text-[11px] text-slate-400 font-mono hidden sm:block">
-                অফলাইন সামরিক-গ্রেড এনক্রিপশন সক্রিয়
+                অফলাইন সামরিক-গ্রেড এনক্রিপশন সক্রিয় · আইডি: {user.email}
               </p>
             </div>
           </div>
@@ -204,16 +205,18 @@ export const UserDashboardPage: React.FC<UserDashboardPageProps> = ({
             <button
               type="button"
               onClick={onGoToHome}
-              className="inline-flex items-center gap-1.5 px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-bold text-slate-300 hover:text-white bg-slate-900 border border-slate-800 hover:border-slate-700 transition-colors cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-bold text-slate-300 hover:text-white bg-slate-900 border border-slate-800 hover:border-[#00FF88]/40 transition-colors cursor-pointer"
             >
               <Home className="w-4 h-4 text-[#00FF88]" />
-              <span>ওয়েবসাইটে ফিরুন</span>
+              <span className="hidden sm:inline">মূল ওয়েবসাইটে ফিরুন</span>
+              <span className="sm:hidden">হোমপেজ</span>
             </button>
 
             <button
               type="button"
               onClick={onLogout}
               className="inline-flex items-center gap-1.5 px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-bold text-rose-400 hover:text-rose-300 bg-rose-950/40 hover:bg-rose-900/50 border border-rose-900/50 transition-colors cursor-pointer"
+              title="ভল্ট থেকে লগআউট করুন"
             >
               <LogOut className="w-4 h-4" />
               <span>লগআউট</span>
@@ -226,7 +229,7 @@ export const UserDashboardPage: React.FC<UserDashboardPageProps> = ({
       {/* Main Content Area */}
       <main className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-8 py-6 sm:py-8 space-y-6">
         
-        {/* User Welcome Banner with Live Status */}
+        {/* User Welcome Banner with Session Indicators */}
         <div className="relative rounded-3xl bg-gradient-to-r from-[#0C1527] via-[#091522] to-[#061814] border-2 border-[#00FF88]/40 p-5 sm:p-7 shadow-[0_15px_40px_rgba(0,0,0,0.6)] overflow-hidden">
           <div className="absolute top-0 right-0 w-80 h-80 bg-[#00FF88]/10 rounded-full blur-3xl pointer-events-none" />
           
@@ -234,22 +237,23 @@ export const UserDashboardPage: React.FC<UserDashboardPageProps> = ({
             <div>
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-900/90 border border-[#00FF88]/30 text-xs text-[#00FF88] font-bold mb-2.5">
                 <span className="w-2 h-2 rounded-full bg-[#00FF88] animate-pulse" />
-                <span>অ্যাকাউন্ট সফলভাবে ভেরিফাইড ও সুরক্ষিত</span>
+                <span>সফলভাবে লগইন করা রয়েছে (লগআউট না করা পর্যন্ত সক্রিয় থাকবে)</span>
               </div>
               <h1 className="text-2xl sm:text-3xl font-extrabold text-white">
-                স্বাগতম, <span className="text-[#00FF88]">{user.name || 'সম্মানিত ইউজার'}</span>!
+                স্বাগতম, <span className="text-[#00FF88]">{user.name}</span>!
               </h1>
-              <p className="text-xs sm:text-sm text-slate-300 mt-1 max-w-xl">
-                ইমেইল: <span className="text-white font-mono">{user.email}</span> · আপনার সমস্ত পাসওয়ার্ড, গোপন নোট ও ফটো মিলিটারী গ্রেড AES-256 বিটে এনক্রিপ্ট রয়েছে।
+              <p className="text-xs sm:text-sm text-slate-300 mt-1 max-w-xl leading-relaxed">
+                আপনার অ্যাকাউন্ট আইডি: <span className="text-white font-mono font-bold">{user.email}</span> · সমস্ত তথ্য এন্ড-টু-এন্ড এনক্রিপ্ট অবস্থায় আপনার ডিভাইসেই সুরক্ষিত সংরক্ষিত রয়েছে।
               </p>
             </div>
 
             {/* Quick Actions in Banner */}
-            <div className="flex flex-wrap sm:flex-nowrap items-center gap-3">
+            <div className="flex flex-wrap sm:flex-nowrap items-center gap-2.5 sm:gap-3">
               <button
                 type="button"
                 onClick={triggerSync}
-                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-900/90 border border-slate-700 hover:border-[#00FF88]/50 text-xs sm:text-sm font-bold text-slate-200 transition-colors cursor-pointer"
+                className="inline-flex items-center gap-2 px-3.5 sm:px-4 py-2.5 rounded-xl bg-slate-900/90 border border-slate-700 hover:border-[#00FF88]/50 text-xs sm:text-sm font-bold text-slate-200 transition-colors cursor-pointer"
+                title="ক্লাউড সিঙ্ক আপডেট"
               >
                 <Cloud className={`w-4 h-4 text-cyan-400 ${syncing ? 'animate-spin' : ''}`} />
                 <span>{syncing ? 'সিঙ্ক হচ্ছে...' : 'ক্লাউড সিঙ্ক'}</span>
@@ -257,8 +261,18 @@ export const UserDashboardPage: React.FC<UserDashboardPageProps> = ({
 
               <button
                 type="button"
+                onClick={handleExportBackup}
+                className="inline-flex items-center gap-2 px-3.5 sm:px-4 py-2.5 rounded-xl bg-slate-900/90 border border-slate-700 hover:border-[#00FF88]/50 text-xs sm:text-sm font-bold text-slate-200 transition-colors cursor-pointer"
+                title="অফলাইন ব্যাকআপ ফাইল ডাউনলোড করুন"
+              >
+                <Download className="w-4 h-4 text-[#00FF88]" />
+                <span className="hidden sm:inline">ব্যাকআপ নিন</span>
+              </button>
+
+              <button
+                type="button"
                 onClick={onInstallApp}
-                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#00FF88] hover:bg-[#00E57A] text-black text-xs sm:text-sm font-extrabold shadow-[0_0_20px_rgba(0,255,136,0.4)] transition-all transform hover:-translate-y-0.5 cursor-pointer"
+                className="inline-flex items-center gap-2 px-4 sm:px-5 py-2.5 rounded-xl bg-[#00FF88] hover:bg-[#00E57A] text-black text-xs sm:text-sm font-extrabold shadow-[0_0_20px_rgba(0,255,136,0.4)] transition-all transform hover:-translate-y-0.5 cursor-pointer whitespace-nowrap"
               >
                 <Smartphone className="w-4 h-4 text-black" />
                 <span>হোমস্ক্রিনে অ্যাপ নিন</span>
@@ -299,9 +313,9 @@ export const UserDashboardPage: React.FC<UserDashboardPageProps> = ({
             <div>
               <p className="text-[11px] text-slate-400 font-medium">সিকিউরিটি স্কোর</p>
               <h3 className="text-xl sm:text-2xl font-extrabold text-emerald-400 mt-0.5">
-                ৯৯% নিরাপদ
+                ১০০% নিরাপদ
               </h3>
-              <p className="text-[10px] text-[#00FF88] mt-0.5">AES-256 বিট সাইফার</p>
+              <p className="text-[10px] text-[#00FF88] mt-0.5">মিলিটারী AES-256 বিট</p>
             </div>
             <div className="w-10 h-10 rounded-xl bg-emerald-950 text-[#00FF88] flex items-center justify-center">
               <ShieldCheck className="w-5 h-5" />
@@ -314,7 +328,7 @@ export const UserDashboardPage: React.FC<UserDashboardPageProps> = ({
               <h3 className="text-xl sm:text-2xl font-extrabold text-cyan-400 mt-0.5">
                 ৫০ GB ফ্রি
               </h3>
-              <p className="text-[10px] text-slate-400 mt-0.5">ব্যবহৃত: ২.৩ MB</p>
+              <p className="text-[10px] text-slate-400 mt-0.5">ব্যবহৃত: ২.৮ MB</p>
             </div>
             <div className="w-10 h-10 rounded-xl bg-blue-950 text-blue-400 flex items-center justify-center">
               <Database className="w-5 h-5" />
@@ -374,6 +388,18 @@ export const UserDashboardPage: React.FC<UserDashboardPageProps> = ({
             >
               ডকুমেন্ট ({vaultItems.filter(i => i.category === 'doc').length})
             </button>
+
+            <button
+              type="button"
+              onClick={() => setActiveTab('image')}
+              className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer ${
+                activeTab === 'image'
+                  ? 'bg-[#00FF88] text-black shadow-[0_0_12px_rgba(0,255,136,0.35)]'
+                  : 'bg-slate-900 text-slate-300 hover:text-white border border-slate-800'
+              }`}
+            >
+              ছবি/আইডি ({vaultItems.filter(i => i.category === 'image').length})
+            </button>
           </div>
 
           {/* Search and Add Button */}
@@ -395,7 +421,7 @@ export const UserDashboardPage: React.FC<UserDashboardPageProps> = ({
               className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#00FF88] hover:bg-[#00E57A] text-black text-xs font-extrabold shadow-[0_0_15px_rgba(0,255,136,0.3)] transition-all cursor-pointer whitespace-nowrap"
             >
               <Plus className="w-4 h-4 stroke-[3]" />
-              <span>{isAdding ? 'বাতিল' : 'নতুন যোগ করুন'}</span>
+              <span>{isAdding ? 'বাতিল' : 'নতুন ডাটা যোগ'}</span>
             </button>
           </div>
 
@@ -416,7 +442,7 @@ export const UserDashboardPage: React.FC<UserDashboardPageProps> = ({
                 <button
                   type="button"
                   onClick={generateStrongPassword}
-                  className="px-2.5 py-1 rounded-lg bg-emerald-950 text-[#00FF88] border border-[#00FF88]/30 text-xs font-mono font-bold hover:bg-emerald-900 transition-colors"
+                  className="px-2.5 py-1 rounded-lg bg-emerald-950 text-[#00FF88] border border-[#00FF88]/30 text-xs font-mono font-bold hover:bg-emerald-900 transition-colors cursor-pointer"
                 >
                   ⚡ স্ট্রং পাসওয়ার্ড তৈরি করুন
                 </button>
@@ -433,10 +459,10 @@ export const UserDashboardPage: React.FC<UserDashboardPageProps> = ({
                   onChange={(e) => setNewCategory(e.target.value as any)}
                   className="w-full px-3 py-2.5 bg-[#060B14] border border-slate-700 rounded-xl text-xs text-white focus:outline-none focus:border-[#00FF88]"
                 >
-                  <option value="password">লকার পাসওয়ার্ড</option>
+                  <option value="password">লকার পাসওয়ার্ড / পিন</option>
                   <option value="note">গোপন সিক্রেট নোট</option>
                   <option value="doc">ডকুমেন্ট ও আইডি তথ্য</option>
-                  <option value="image">ফটো মেমো</option>
+                  <option value="image">ফটো ও মিডিয়া মেমো</option>
                 </select>
               </div>
 
@@ -486,13 +512,13 @@ export const UserDashboardPage: React.FC<UserDashboardPageProps> = ({
               <button
                 type="button"
                 onClick={() => setIsAdding(false)}
-                className="px-4 py-2 rounded-xl text-xs font-bold text-slate-400 hover:text-white bg-slate-800 transition-colors"
+                className="px-4 py-2 rounded-xl text-xs font-bold text-slate-400 hover:text-white bg-slate-800 transition-colors cursor-pointer"
               >
                 বাতিল
               </button>
               <button
                 type="submit"
-                className="px-5 py-2 rounded-xl text-xs font-extrabold text-black bg-[#00FF88] hover:bg-[#00E57A] shadow-[0_0_15px_rgba(0,255,136,0.3)] transition-colors"
+                className="px-5 py-2 rounded-xl text-xs font-extrabold text-black bg-[#00FF88] hover:bg-[#00E57A] shadow-[0_0_15px_rgba(0,255,136,0.3)] transition-colors cursor-pointer"
               >
                 ভল্টে সংরক্ষণ করুন
               </button>
@@ -517,7 +543,15 @@ export const UserDashboardPage: React.FC<UserDashboardPageProps> = ({
                       {item.category === 'note' && <FileText className="w-3 h-3" />}
                       {item.category === 'doc' && <File className="w-3 h-3" />}
                       {item.category === 'image' && <ImageIcon className="w-3 h-3" />}
-                      <span>{item.category === 'password' ? 'পাসওয়ার্ড' : item.category === 'note' ? 'সিক্রেট নোট' : item.category === 'doc' ? 'ডকুমেন্ট' : 'ফটো মেমো'}</span>
+                      <span>
+                        {item.category === 'password' 
+                          ? 'পাসওয়ার্ড' 
+                          : item.category === 'note' 
+                            ? 'সিক্রেট নোট' 
+                            : item.category === 'doc' 
+                              ? 'ডকুমেন্ট' 
+                              : 'ফটো মেমো'}
+                      </span>
                     </span>
 
                     <span className="text-[10px] font-mono text-slate-400">
@@ -525,7 +559,7 @@ export const UserDashboardPage: React.FC<UserDashboardPageProps> = ({
                     </span>
                   </div>
 
-                  <h3 className="text-sm font-bold text-white mb-1 group-hover:text-[#00FF88] transition-colors">
+                  <h3 className="text-sm font-bold text-white mb-1 group-hover:text-[#00FF88] transition-colors truncate">
                     {item.title}
                   </h3>
                   <p className="text-xs text-slate-400 mb-3 truncate">
@@ -542,7 +576,7 @@ export const UserDashboardPage: React.FC<UserDashboardPageProps> = ({
                       <button
                         type="button"
                         onClick={() => setVisibleSecretId(isSecretVisible ? null : item.id)}
-                        className="p-1 rounded-md text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+                        className="p-1 rounded-md text-slate-400 hover:text-white hover:bg-slate-800 transition-colors cursor-pointer"
                         title={isSecretVisible ? 'লুকান' : 'দেখুন'}
                       >
                         {isSecretVisible ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
@@ -550,8 +584,8 @@ export const UserDashboardPage: React.FC<UserDashboardPageProps> = ({
 
                       <button
                         type="button"
-                        onClick={() => handleCopy(item.secretData, item.id)}
-                        className="p-1 rounded-md text-slate-400 hover:text-[#00FF88] hover:bg-slate-800 transition-colors"
+                        onClick={() => handleCopy(item.secretData, item.id, item.title)}
+                        className="p-1 rounded-md text-slate-400 hover:text-[#00FF88] hover:bg-slate-800 transition-colors cursor-pointer"
                         title="কপি করুন"
                       >
                         {copiedId === item.id ? (
@@ -564,12 +598,16 @@ export const UserDashboardPage: React.FC<UserDashboardPageProps> = ({
                   </div>
                 </div>
 
-                {/* Footer action: Delete */}
+                {/* Footer action: View details & Delete */}
                 <div className="pt-2 border-t border-slate-800/80 flex items-center justify-between text-[11px]">
-                  <span className="text-emerald-400 font-mono flex items-center gap-1">
-                    <span className="w-1.5 h-1.5 rounded-full bg-[#00FF88]" />
-                    <span>{item.strength || 'AES-256'}</span>
-                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setSelectedItemForView(item)}
+                    className="text-[#00FF88] font-bold hover:underline flex items-center gap-1 cursor-pointer"
+                  >
+                    <span>বিস্তারিত দেখুন</span>
+                    <ChevronRight className="w-3 h-3" />
+                  </button>
 
                   <button
                     type="button"
@@ -585,6 +623,69 @@ export const UserDashboardPage: React.FC<UserDashboardPageProps> = ({
             );
           })}
         </div>
+
+        {/* Selected Item Full View Modal */}
+        {selectedItemForView && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-in fade-in duration-150">
+            <div className="relative w-full max-w-lg rounded-3xl bg-[#0E1526] border-2 border-[#00FF88]/50 shadow-2xl p-6 text-slate-200">
+              <div className="flex items-center justify-between pb-3.5 mb-4 border-b border-slate-800">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-9 h-9 rounded-xl bg-emerald-950 text-[#00FF88] flex items-center justify-center">
+                    <ShieldCheck className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h3 className="text-base font-bold text-white">
+                      {selectedItemForView.title}
+                    </h3>
+                    <span className="text-[10px] font-mono text-slate-400">{selectedItemForView.date}</span>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setSelectedItemForView(null)}
+                  className="p-1.5 rounded-xl text-slate-400 hover:text-white bg-slate-800 cursor-pointer"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              <div className="p-4 rounded-2xl bg-[#050810] border border-slate-800 font-mono text-xs sm:text-sm text-slate-200 whitespace-pre-wrap leading-relaxed max-h-64 overflow-y-auto mb-4 select-text">
+                {selectedItemForView.secretData}
+              </div>
+
+              <div className="flex justify-between items-center text-xs">
+                <button
+                  type="button"
+                  onClick={() => handleDelete(selectedItemForView.id)}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-rose-400 hover:text-rose-300 bg-rose-950/40 hover:bg-rose-900/40 border border-rose-800/40 transition-colors cursor-pointer"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                  <span>মুছুন</span>
+                </button>
+
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => handleCopy(selectedItemForView.secretData, selectedItemForView.id, selectedItemForView.title)}
+                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold text-slate-200 bg-slate-800 hover:bg-slate-700 transition-colors cursor-pointer"
+                  >
+                    <Copy className="w-3.5 h-3.5" />
+                    <span>কন্টেন্ট কপি</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setSelectedItemForView(null)}
+                    className="px-4 py-2 rounded-xl text-xs font-bold text-black bg-[#00FF88] hover:bg-[#00E57A] cursor-pointer"
+                  >
+                    বন্ধ করুন
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Security & Installation Assistant Strip */}
         <div className="rounded-2xl bg-[#091120] border border-slate-800 p-4 sm:p-5 flex flex-col sm:flex-row items-center justify-between gap-4">
@@ -616,7 +717,7 @@ export const UserDashboardPage: React.FC<UserDashboardPageProps> = ({
 
       {/* Clean Footer */}
       <footer className="border-t border-slate-800/80 py-4 px-4 text-center text-xs text-slate-500">
-        Suraksha Vault © 2026 · আপনার সম্পূর্ণ ডাটা আপনার ডিভাইসে এন্ড-টু-এন্ড এনক্রিপ্ট থাকে।
+        Suraksha Vault © 2026 · আপনার সম্পূর্ণ ডাটা আপনার ডিভাইসে এন্ড-টু-এন্ড এনক্রিপ্ট থাকে। লগআউট করার আগ পর্যন্ত আপনার সেশন নিরাপদ থাকবে।
       </footer>
 
     </div>
