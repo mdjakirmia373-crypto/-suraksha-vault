@@ -19,6 +19,7 @@ import { InstallModal } from './components/InstallModal';
 import { SingleFileExportModal } from './components/SingleFileExportModal';
 import { PrivacyModal } from './components/PrivacyModal';
 import { SupportModal } from './components/SupportModal';
+import { TopDownloadBanner } from './components/TopDownloadBanner';
 import { triggerDirectDownload } from './utils/downloader';
 
 export default function App() {
@@ -63,6 +64,13 @@ export default function App() {
   return (
     <div id="top" className="min-h-screen bg-[#060A12] text-slate-100 flex flex-col font-sans selection:bg-[#00FF87] selection:text-black">
       
+      {/* 0. Top Smart Download Bar that shows immediately when anyone opens the website */}
+      <TopDownloadBanner
+        lang={lang}
+        onDownloadClick={() => handleDirectDownload('SurakshaVault.apk')}
+        onOpenGuide={() => setInstallModalOpen(true)}
+      />
+
       {/* Top Bar with 'অ্যাপস ইনস্টল করুন' and 'Download APK' right at the top */}
       <SurakshaTopBar
         lang={lang}
