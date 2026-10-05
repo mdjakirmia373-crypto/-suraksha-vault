@@ -1,42 +1,42 @@
 import React, { useState } from 'react';
 import { SurakshaLanguage } from '../types/suraksha';
-import { X, Copy, Check, Download, Code, FileCode } from 'lucide-react';
+import { X, Copy, Check, Download, Code } from 'lucide-react';
 
 interface SingleFileExportModalProps {
-  lang: SurakshaLanguage;
+  lang?: SurakshaLanguage;
   onClose: () => void;
 }
 
 export const SingleFileExportModal: React.FC<SingleFileExportModalProps> = ({
-  lang,
   onClose,
 }) => {
   const [copied, setCopied] = useState(false);
 
   // Complete standalone single-file HTML, CSS, and JS code for Suraksha Vault
   const standaloneHtmlCode = `<!DOCTYPE html>
-<html lang="en">
+<html lang="bn">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Suraksha Vault - Your Privacy. Your Vault. Your Suraksha.</title>
-  <meta name="description" content="Download Suraksha Vault for Android. Dual-password protection, app locker, and encrypted photo/video vault.">
+  <meta name="description" content="অফিসিয়াল অ্যান্ড্রয়েড অ্যাপস ও প্রাইভেসি ভল্ট। ডুয়েল পাসওয়ার্ড ও AES-256 এনক্রিপশনের মাধ্যমে ফাইল, ছবি ও অ্যাপস লক করুন।">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;600;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
   <style>
     :root {
       --bg-dark: #060A12;
-      --bg-card: #0A0F1D;
-      --bg-card-hover: #0E1528;
+      --bg-card: #09111D;
+      --bg-card-hover: #0C1728;
       --accent: #00FF87;
       --accent-hover: #00E575;
       --text-main: #F1F5F9;
       --text-muted: #94A3B8;
       --border-color: rgba(255, 255, 255, 0.08);
-      --font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+      --font-family: 'Hind Siliguri', 'Plus Jakarta Sans', system-ui, sans-serif;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
     body {
       background-color: var(--bg-dark);
       color: var(--text-main);
@@ -45,12 +45,35 @@ export const SingleFileExportModal: React.FC<SingleFileExportModalProps> = ({
       -webkit-font-smoothing: antialiased;
     }
     a { color: inherit; text-decoration: none; }
-    .container { max-width: 1140px; margin: 0 auto; padding: 0 1.5rem; }
-    
-    /* Header */
+    .container { max-width: 1140px; margin: 0 auto; padding: 0 1.25rem; }
+
+    /* 1. TOP STICKY INSTALL BANNER */
+    .top-banner {
+      position: sticky; top: 0; z-index: 60;
+      background: #040C16;
+      border-bottom: 2px solid var(--accent);
+      padding: 0.65rem 1rem;
+      box-shadow: 0 4px 25px rgba(0, 255, 135, 0.25);
+    }
+    .top-banner-inner {
+      display: flex; flex-direction: column; align-items: center; justify-content: space-between; gap: 0.5rem;
+    }
+    @media (min-width: 640px) {
+      .top-banner-inner { flex-direction: row; }
+    }
+    .top-banner-text { font-size: 0.85rem; color: #E2E8F0; text-align: center; }
+    .top-banner-text strong { color: var(--accent); }
+    .btn-banner {
+      background: var(--accent); color: #000; font-weight: 800; font-size: 0.8rem;
+      padding: 0.45rem 1rem; border-radius: 10px; border: none; cursor: pointer;
+      box-shadow: 0 0 15px rgba(0,255,135,0.4); transition: transform 0.15s;
+    }
+    .btn-banner:hover { transform: scale(1.03); background: var(--accent-hover); }
+
+    /* 2. HEADER */
     header {
-      position: sticky; top: 0; z-index: 50;
-      background: rgba(6, 10, 18, 0.9);
+      position: sticky; top: 48px; z-index: 50;
+      background: rgba(6, 10, 18, 0.95);
       backdrop-filter: blur(12px);
       border-bottom: 1px solid var(--border-color);
       height: 64px; display: flex; align-items: center;
@@ -58,325 +81,462 @@ export const SingleFileExportModal: React.FC<SingleFileExportModalProps> = ({
     .nav-wrapper { display: flex; justify-content: space-between; align-items: center; width: 100%; }
     .brand { font-size: 1.25rem; font-weight: 800; display: flex; align-items: center; gap: 8px; }
     .brand-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 10px var(--accent); }
-    .nav-links { display: flex; gap: 1.75rem; list-style: none; font-size: 0.9rem; font-weight: 500; }
+    .nav-links { display: none; gap: 1.5rem; list-style: none; font-size: 0.9rem; font-weight: 600; }
+    @media (min-width: 900px) { .nav-links { display: flex; } }
     .nav-links a:hover { color: var(--accent); }
-    
+    .header-actions { display: flex; gap: 0.6rem; align-items: center; }
+    .btn-login {
+      background: #0A1424; color: #E2E8F0; border: 1px solid #1E293B;
+      font-weight: 700; font-size: 0.8rem; padding: 0.45rem 1rem; border-radius: 10px; cursor: pointer;
+    }
+    .btn-login:hover { border-color: var(--accent); color: var(--accent); }
+    .btn-signup {
+      background: var(--accent); color: #000; font-weight: 800; font-size: 0.8rem;
+      padding: 0.45rem 1rem; border-radius: 10px; border: none; cursor: pointer;
+      box-shadow: 0 0 15px rgba(0,255,135,0.3);
+    }
+    .btn-signup:hover { background: var(--accent-hover); }
+
     /* Buttons */
-    .btn {
-      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
-      padding: 0.75rem 1.5rem; font-size: 0.9rem; font-weight: 700; border-radius: 12px;
-      cursor: pointer; transition: all 0.2s ease; border: none; font-family: inherit;
-    }
     .btn-primary {
-      background: var(--accent); color: #000;
-      box-shadow: 0 0 25px rgba(0, 255, 135, 0.3);
+      background: var(--accent); color: #000; font-weight: 800; padding: 0.9rem 1.8rem;
+      border-radius: 14px; font-size: 1rem; border: none; cursor: pointer;
+      display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 0 30px rgba(0,255,135,0.35);
+      transition: all 0.2s ease;
     }
-    .btn-primary:hover { background: var(--accent-hover); box-shadow: 0 0 35px rgba(0, 255, 135, 0.5); transform: translateY(-1px); }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 0 40px rgba(0,255,135,0.5); }
     .btn-secondary {
-      background: #0E1528; color: var(--text-main); border: 1px solid var(--border-color);
+      background: #0A1424; color: #F1F5F9; font-weight: 700; padding: 0.9rem 1.6rem;
+      border-radius: 14px; font-size: 1rem; border: 2px solid #1E293B; cursor: pointer;
+      display: inline-flex; align-items: center; gap: 8px; transition: all 0.2s ease;
     }
-    .btn-secondary:hover { border-color: rgba(255,255,255,0.2); }
-    
-    /* Hero */
-    .hero { padding: 4rem 0 5rem; border-bottom: 1px solid var(--border-color); position: relative; overflow: hidden; }
-    .hero-grid { display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 3rem; align-items: center; }
-    .kicker { font-size: 0.8rem; font-weight: 600; color: var(--accent); margin-bottom: 1rem; display: flex; align-items: center; gap: 8px; }
-    h1 { font-size: 3.5rem; font-weight: 800; line-height: 1.1; margin-bottom: 1rem; letter-spacing: -0.03em; }
-    h1 span { color: var(--accent); text-shadow: 0 0 20px rgba(0, 255, 135, 0.4); }
-    .tagline { font-size: 1.35rem; font-weight: 600; color: #E2E8F0; margin-bottom: 1rem; }
-    .hero-desc { color: var(--text-muted); font-size: 1.05rem; margin-bottom: 2rem; max-width: 540px; }
-    .hero-actions { display: flex; gap: 1rem; margin-bottom: 2rem; }
-    .hero-specs { font-size: 0.8rem; color: var(--text-muted); display: flex; gap: 1rem; align-items: center; }
-    
-    /* Phone Mockup */
-    .phone {
-      max-width: 320px; margin: 0 auto; background: var(--bg-card);
-      border: 4px solid #1E293B; border-radius: 36px; padding: 1.25rem;
-      box-shadow: 0 20px 50px rgba(0,0,0,0.8), 0 0 30px rgba(0, 255, 135, 0.15);
-      text-align: center;
-    }
-    .pin-dots { display: flex; justify-content: center; gap: 12px; margin: 1.5rem 0; }
-    .pin-dot { width: 14px; height: 14px; border-radius: 50%; border: 2px solid #475569; }
-    .pin-dot.filled { background: var(--accent); border-color: var(--accent); box-shadow: 0 0 8px var(--accent); }
-    .keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; max-width: 220px; margin: 0 auto; }
-    .key-btn {
-      height: 48px; border-radius: 50%; background: #1E293B; color: #FFF; font-weight: 600; font-size: 1rem;
-      border: none; cursor: pointer; transition: background 0.15s;
-    }
-    .key-btn:hover { background: #334155; }
-    
+    .btn-secondary:hover { border-color: var(--accent); }
+
     /* Sections */
-    section { padding: 5rem 0; border-bottom: 1px solid var(--border-color); }
-    .section-title { text-align: center; margin-bottom: 3.5rem; }
-    .section-title h2 { font-size: 2.25rem; font-weight: 800; margin-bottom: 0.5rem; letter-spacing: -0.02em; }
-    .section-title p { color: var(--text-muted); font-size: 1rem; }
-    
-    /* Grid */
-    .features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.5rem; }
-    .card {
-      background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 20px;
-      padding: 2rem; transition: border-color 0.2s;
+    section { padding: 4.5rem 0; border-bottom: 1px solid var(--border-color); }
+    .section-title { text-align: center; max-width: 650px; margin: 0 auto 3rem; }
+    .section-title h2 { font-size: 2rem; font-weight: 800; margin-bottom: 0.5rem; }
+    .section-title p { color: var(--text-muted); font-size: 0.95rem; }
+    .badge {
+      display: inline-block; font-size: 0.75rem; font-weight: 700; text-transform: uppercase;
+      padding: 0.25rem 0.75rem; border-radius: 9999px; background: rgba(0,255,135,0.1);
+      color: var(--accent); border: 1px solid rgba(0,255,135,0.3); margin-bottom: 0.75rem;
     }
-    .card:hover { border-color: rgba(0, 255, 135, 0.4); }
-    .card-num { font-size: 0.8rem; font-family: 'JetBrains Mono', monospace; font-weight: 700; color: var(--accent); margin-bottom: 1rem; display: block; }
-    .card h3 { font-size: 1.25rem; font-weight: 700; margin-bottom: 0.75rem; }
-    .card p { color: var(--text-muted); font-size: 0.9rem; line-height: 1.5; }
-    
-    /* Download */
-    .download-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; max-width: 800px; margin: 0 auto; }
-    .dl-card {
-      background: var(--bg-card); border: 2px solid rgba(0, 255, 135, 0.4); border-radius: 20px;
-      padding: 2rem; text-align: center;
+
+    /* Hero */
+    .hero-grid { display: grid; grid-template-columns: 1fr; gap: 2.5rem; align-items: center; }
+    @media (min-width: 900px) { .hero-grid { grid-template-columns: 1.2fr 0.8fr; } }
+    .hero-h1 { font-size: 2.75rem; font-weight: 800; line-height: 1.15; margin-bottom: 0.75rem; }
+    .hero-tagline { font-size: 1.3rem; font-weight: 600; color: #CBD5E1; font-style: italic; margin-bottom: 1.25rem; }
+    .hero-desc { color: var(--text-muted); font-size: 1rem; line-height: 1.6; margin-bottom: 2rem; }
+    .hero-btns { display: flex; flex-wrap: wrap; gap: 1rem; margin-bottom: 2rem; }
+
+    /* Categories Grid */
+    .grid-5 { display: grid; grid-template-columns: 1fr; gap: 1.25rem; }
+    @media (min-width: 640px) { .grid-5 { grid-template-columns: repeat(2, 1fr); } }
+    @media (min-width: 1024px) { .grid-5 { grid-template-columns: repeat(3, 1fr); } }
+    .cat-card {
+      background: var(--bg-card); border: 2px solid var(--border-color); border-radius: 20px;
+      padding: 1.5rem; transition: transform 0.2s, border-color 0.2s;
     }
-    .dl-specs { background: #070D18; padding: 1rem; border-radius: 12px; margin: 1.5rem 0; text-align: left; font-size: 0.85rem; }
-    .dl-specs div { display: flex; justify-content: space-between; margin-bottom: 6px; color: var(--text-muted); }
-    .dl-specs span:last-child { color: var(--text-main); font-family: 'JetBrains Mono', monospace; }
-    
+    .cat-card:hover { transform: translateY(-4px); border-color: rgba(0,255,135,0.5); }
+    .cat-card h3 { font-size: 1.2rem; font-weight: 700; margin: 0.5rem 0 0.25rem; }
+    .cat-card p { font-size: 0.85rem; color: var(--text-muted); }
+
+    /* 2-Col Grid */
+    .grid-2 { display: grid; grid-template-columns: 1fr; gap: 1.5rem; }
+    @media (min-width: 768px) { .grid-2 { grid-template-columns: repeat(2, 1fr); } }
+    .box-card {
+      background: var(--bg-card); border: 2px solid var(--border-color); border-radius: 24px;
+      padding: 2rem;
+    }
+
+    /* FAQ */
+    .faq-item {
+      background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 16px;
+      margin-bottom: 0.75rem; overflow: hidden;
+    }
+    .faq-q {
+      padding: 1.1rem 1.25rem; font-weight: 700; cursor: pointer; display: flex; justify-content: space-between;
+      user-select: none;
+    }
+    .faq-q:hover { color: var(--accent); }
+    .faq-a { padding: 0 1.25rem 1.1rem; font-size: 0.875rem; color: var(--text-muted); display: none; }
+
     /* Footer */
-    footer { padding: 3rem 0; font-size: 0.85rem; color: var(--text-muted); text-align: center; }
+    footer { padding: 3rem 0; font-size: 0.85rem; color: var(--text-muted); border-top: 1px solid var(--border-color); }
     
-    @media (max-width: 768px) {
-      .hero-grid { grid-template-columns: 1fr; text-align: center; }
-      .hero-actions { justify-content: center; flex-direction: column; }
-      .nav-links { display: none; }
-      .download-grid { grid-template-columns: 1fr; }
-      h1 { font-size: 2.5rem; }
+    /* Modals */
+    .modal-overlay {
+      position: fixed; inset: 0; z-index: 100; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px);
+      display: none; align-items: center; justify-content: center; padding: 1rem;
     }
+    .modal-box {
+      background: #09111D; border: 2px solid var(--accent); border-radius: 24px;
+      max-width: 440px; width: 100%; padding: 2rem; position: relative; color: #FFF;
+    }
+    .modal-close {
+      position: absolute; top: 1rem; right: 1rem; background: #1E293B; border: none;
+      color: #FFF; font-size: 1.25rem; width: 32px; height: 32px; border-radius: 8px; cursor: pointer;
+    }
+    .form-input {
+      width: 100%; padding: 0.75rem 1rem; background: #050B14; border: 1px solid #1E293B;
+      border-radius: 12px; color: #FFF; font-size: 0.9rem; margin-bottom: 0.75rem; outline: none;
+    }
+    .form-input:focus { border-color: var(--accent); }
   </style>
 </head>
 <body>
 
-  <!-- Header -->
+  <!-- 1. TOP STICKY INSTALL BANNER -->
+  <aside class="top-banner">
+    <div class="container top-banner-inner">
+      <div class="top-banner-text">
+        <strong>Suraksha Vault</strong> | অফিসিয়াল অ্যান্ড্রয়েড অ্যাপস উপলব্ধ (১৮.৪ মেগাবাইট) - আপনার ফোনে অ্যাপটি ইনস্টল করতে চান?
+      </div>
+      <button class="btn-banner" onclick="handleInstallBanner()">এই ওয়েবসাইটের অ্যাপস ইনস্টল করুন</button>
+    </div>
+  </aside>
+
+  <!-- 2. HEADER -->
   <header>
     <div class="container nav-wrapper">
-      <div class="brand">
-        <div class="brand-dot"></div>
-        Suraksha Vault
-      </div>
+      <a href="#" class="brand">
+        <span class="brand-dot"></span>
+        <span>Suraksha <span style="color:var(--accent);">Vault</span></span>
+      </a>
+
       <ul class="nav-links">
-        <li><a href="#features">Features</a></li>
-        <li><a href="#how-it-works">How It Works</a></li>
-        <li><a href="#download">Download</a></li>
+        <li><a href="#features">ফিচার্স</a></li>
+        <li><a href="#categories">সুরক্ষিত ক্যাটাগরি</a></li>
+        <li><a href="#compatibility">কম্প্যাটিবিলিটি</a></li>
+        <li><a href="#backup">ব্যাকআপ</a></li>
+        <li><a href="#download">ডাউনলোড</a></li>
+        <li><a href="#faq">প্রশ্নোত্তর</a></li>
       </ul>
-      <a href="#download" class="btn btn-primary" style="padding: 0.5rem 1rem; font-size: 0.85rem;">Download APK</a>
+
+      <div class="header-actions">
+        <button class="btn-login" onclick="openAuthModal('login')">লগইন</button>
+        <button class="btn-signup" onclick="openAuthModal('signup')">সাইন-আপ</button>
+      </div>
     </div>
   </header>
 
-  <!-- Hero Section -->
+  <!-- 3. HERO SECTION -->
   <section class="hero">
     <div class="container hero-grid">
       <div>
-        <div class="kicker">
-          <span>●</span> 100% OFFLINE VAULT · AES-256 MILITARY GRADE
-        </div>
-        <h1>Suraksha <span>Vault</span></h1>
-        <div class="tagline">"Your Privacy. Your Vault. Your Suraksha."</div>
+        <span class="badge">Android 5.0 - 15+ ইউনিভার্সাল বিল্ড</span>
+        <h1 class="hero-h1">Suraksha <span style="color:var(--accent);">Vault</span></h1>
+        <p class="hero-tagline">"Your Privacy. Your Vault. Your Suraksha."</p>
         <p class="hero-desc">
-          The ultimate Android privacy armor. Protect your private photos, personal videos, and apps behind unbreakable dual-password authentication. No cloud leaks. No tracking.
+          আপনার অ্যান্ড্রয়েড ডিভাইসের জন্য চূড়ান্ত ব্যক্তিগত নিরাপত্তা বর্ম। স্যামসাং, শাওমি, অপ্পো, ভিভোসহ যেকোনো ফোনে সম্পূর্ণ অফলাইনে বা অনলাইনে ফাইল, ছবি, ভিডিও ও অ্যাপস লক করুন মিলিটারী গ্রেড AES-256 এনক্রিপশনের মাধ্যমে।
         </p>
-        <div class="hero-actions">
-          <a href="#download" class="btn btn-primary">Download APK Now (18.4 MB)</a>
-          <a href="#how-it-works" class="btn btn-secondary">How It Works</a>
-        </div>
-        <div class="hero-specs">
-          <span>Version: v1.0.4 Stable</span>
-          <span>·</span>
-          <span>Android 8.0 - 15</span>
-          <span>·</span>
-          <span style="color: var(--accent);">Zero Trackers</span>
+        <div class="hero-btns">
+          <button class="btn-primary" onclick="triggerDownload()">⬇️ Download APK (১৮.৪ MB)</button>
+          <button class="btn-secondary" onclick="openInstallModal()">📱 ইনস্টল করার নিয়ম</button>
         </div>
       </div>
-
-      <!-- Phone Keypad Simulator -->
-      <div>
-        <div class="phone">
-          <div style="font-size: 0.8rem; color: var(--accent); font-weight: 700; margin-bottom: 0.5rem;">SURAKSHA VAULT</div>
-          <div style="font-size: 0.95rem; font-weight: 700; color: #FFF;" id="vaultStatus">Enter 4-Digit Security PIN</div>
-          <div class="pin-dots" id="dotsContainer">
-            <div class="pin-dot"></div>
-            <div class="pin-dot"></div>
-            <div class="pin-dot"></div>
-            <div class="pin-dot"></div>
-          </div>
-          <div class="keypad">
-            <button class="key-btn" onclick="pressPin('1')">1</button>
-            <button class="key-btn" onclick="pressPin('2')">2</button>
-            <button class="key-btn" onclick="pressPin('3')">3</button>
-            <button class="key-btn" onclick="pressPin('4')">4</button>
-            <button class="key-btn" onclick="pressPin('5')">5</button>
-            <button class="key-btn" onclick="pressPin('6')">6</button>
-            <button class="key-btn" onclick="pressPin('7')">7</button>
-            <button class="key-btn" onclick="pressPin('8')">8</button>
-            <button class="key-btn" onclick="pressPin('9')">9</button>
-            <button class="key-btn" onclick="clearPin()" style="font-size: 0.75rem;">Clear</button>
-            <button class="key-btn" onclick="pressPin('0')">0</button>
-            <button class="key-btn" onclick="deletePin()">⌫</button>
-          </div>
-          <div style="font-size: 0.75rem; color: #64748B; margin-top: 1rem;">
-            Tip: Press 1 2 3 4 to simulate unlock
+      <div style="text-align: center;">
+        <div style="background:#09111D; border:2px solid #1E293B; border-radius:32px; padding:2rem; box-shadow:0 0 40px rgba(0,255,135,0.15);">
+          <div style="font-size:3.5rem; margin-bottom:0.5rem;">🛡️</div>
+          <h3 style="font-size:1.5rem; font-weight:800; color:#FFF;">Suraksha Vault</h3>
+          <p style="color:var(--accent); font-family:'JetBrains Mono'; font-size:0.85rem; margin-bottom:1.5rem;">AES-256 Hardware Encrypted</p>
+          <div style="background:#050B14; padding:1rem; border-radius:16px; font-size:0.85rem; color:#CBD5E1; text-align:left; line-height:1.8;">
+            ✓ ডুয়েল পাসওয়ার্ড সিকিউরিটি (Auth + PIN)<br>
+            ✓ অ্যান্ড্রয়েড অ্যাপ লকার (WhatsApp, bKash)<br>
+            ✓ ১০০% অফলাইনে ফুল ভল্ট ফাংশনালিটি<br>
+            ✓ হাই-স্পিড ক্লাউড ব্যাকআপ ও রিকভারি
           </div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- Key Features Section -->
+  <!-- 4. PROTECTED CATEGORIES SECTION -->
+  <section id="categories">
+    <div class="container">
+      <div class="section-title">
+        <span class="badge">সুরক্ষিত ক্যাটাগরি</span>
+        <h2>আপনি যা কিছু লক ও সুরক্ষিত করতে পারবেন</h2>
+        <p>সুরক্ষা ভল্টে আপনার যেকোনো স্পর্শকাতর ফাইল এবং ব্যক্তিগত তথ্য আলাদা আলাদা ক্যাটাগরিতে গোপন রাখা যায়।</p>
+      </div>
+
+      <div class="grid-5">
+        <div class="cat-card">
+          <div style="font-size:2rem;">📁</div>
+          <h3>১. সকল ফাইল</h3>
+          <p>যেকোনো এক্সটেনশনের ফাইল (.zip, .apk, .mp3 ইত্যাদি) স্বাভাবিক ফাইল ম্যানেজার থেকে সম্পূর্ণ লুকিয়ে রাখুন।</p>
+        </div>
+        <div class="cat-card">
+          <div style="font-size:2rem;">🖼️</div>
+          <h3>২. ইমেজ / ফটো</h3>
+          <p>ব্যক্তিগত ছবি ও পারিবারিক অ্যালবাম গ্যালারি থেকে অদৃশ্য করে ফেলুন। ভল্ট ছাড়া কোথাও দেখা যাবে না।</p>
+        </div>
+        <div class="cat-card">
+          <div style="font-size:2rem;">🎥</div>
+          <h3>৩. ভিডিও</h3>
+          <p>উচ্চ রেজুলিউশনের ব্যক্তিগত ভিডিও ক্লিপ দ্রুত এনক্রিপ্ট করে সুরক্ষিত রাখুন।</p>
+        </div>
+        <div class="cat-card">
+          <div style="font-size:2rem;">📄</div>
+          <h3>৪. ডকুমেন্ট</h3>
+          <p>জাতীয় পরিচয়পত্র (NID), পাসপোর্ট কপি বা জরুরি পিডিএফ ফাইল সুরক্ষিত ভল্টে নিরাপদে রাখুন।</p>
+        </div>
+        <div class="cat-card">
+          <div style="font-size:2rem;">📝</div>
+          <h3>৫. পার্সোনাল নোট</h3>
+          <p>জরুরি পাসওয়ার্ড, ব্যাংক তথ্য, এটিএম পিন এবং ব্যক্তিগত ডায়রির গোপন তথ্য আলাদা আলাদা নোটে রাখুন।</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5. UNIVERSAL COMPATIBILITY & HYBRID USAGE -->
+  <section id="compatibility">
+    <div class="container">
+      <div class="section-title">
+        <span class="badge">কম্প্যাটিবিলিটি</span>
+        <h2>সকল অ্যান্ড্রয়েড ডিভাইসে কাজ করে</h2>
+        <p>অ্যান্ড্রয়েড ৫.০ থেকে ১৫+ যেকোনো ব্র্যান্ডের স্মার্টফোনে কোনো ল্যাগ ছাড়া মসৃণভাবে চলবে।</p>
+      </div>
+
+      <div class="grid-2">
+        <div class="box-card">
+          <span style="color:var(--accent); font-weight:700; font-size:0.85rem;">UNIVERSAL SUPPORT</span>
+          <h3 style="font-size:1.4rem; font-weight:800; margin:0.5rem 0 1rem;">সকল স্মার্টফোন ব্র্যান্ডে ১০০% সমর্থিত</h3>
+          <p style="color:var(--text-muted); font-size:0.9rem; line-height:1.7;">
+            Samsung, Xiaomi, Vivo, Oppo, Realme, OnePlus, Infinix, Tecno, Symphony, Walton সহ যেকোনো ফোনে কোনো রুট পারমিশন ছাড়াই ইনস্টল হবে।
+          </p>
+        </div>
+
+        <div class="box-card">
+          <span style="color:#38BDF8; font-weight:700; font-size:0.85rem;">HYBRID ARCHITECTURE</span>
+          <h3 style="font-size:1.4rem; font-weight:800; margin:0.5rem 0 1rem;">ইন্টারনেট থাকুক বা না থাকুক—ভল্ট সবসময় প্রস্তুত</h3>
+          <p style="color:var(--text-muted); font-size:0.9rem; line-height:1.7;">
+            ইন্টারনেট সংযোগ ছাড়াই অ্যাপ লকার ও ফটো ভল্ট লোকাল মোডে কাজ করে। ইন্টারনেট পেলে ঐচ্ছিক ক্লাউড সার্ভারের সাথে ডাটা স্বয়ংক্রিয়ভাবে সিঙ্ক হয়।
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6. KEY FEATURES -->
   <section id="features">
     <div class="container">
       <div class="section-title">
-        <h2>Uncompromising Vault Capabilities</h2>
-        <p>Built for users who take their personal data and smartphone privacy seriously.</p>
+        <span class="badge">ফিচারসমূহ</span>
+        <h2>উন্নত প্রাইভেসি ও সিকিউরিটি ফিচার</h2>
       </div>
-      <div class="features-grid">
-        <div class="card">
-          <span class="card-num">01. PROTECTION</span>
-          <h3>Dual Password Protection</h3>
-          <p>Master Account Password for authentication and emergency recovery, paired with an ultra-fast 4-digit PIN for instant daily vault access.</p>
+
+      <div class="grid-5" style="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));">
+        <div class="cat-card">
+          <div style="font-size:2rem;">🔑</div>
+          <h3>ডুয়েল পাসওয়ার্ড প্রটেকশন</h3>
+          <p>অ্যাকাউন্ট রিকভারির জন্য মাস্টার পাসওয়ার্ড এবং প্রতিদিন দ্রুত ভল্ট খোলার জন্য ৪-সংখ্যার সহজ ভল্ট পিন।</p>
         </div>
-        <div class="card">
-          <span class="card-num">02. APPS</span>
-          <h3>Secure App Locker</h3>
-          <p>Lock WhatsApp, Facebook, Gallery, and mobile banking with zero battery drain. Prevents snooping friends and unauthorized app uninstall.</p>
+        <div class="cat-card">
+          <div style="font-size:2rem;">🔒</div>
+          <h3>অ্যাডভান্সড অ্যাপ লকার</h3>
+          <p>হোয়াটসঅ্যাপ, ফেসবুক, মেসেঞ্জার, বিকাশ ও ব্যাংক অ্যাপ এক ট্যাপেই নিরাপদ সিকিউরিটি আবরণে লক করুন।</p>
         </div>
-        <div class="card">
-          <span class="card-num">03. MEDIA</span>
-          <h3>Photo & Video Protection</h3>
-          <p>Hide memories behind AES-256 local storage encryption. Files become completely invisible to Google Photos and third-party file managers.</p>
-        </div>
-        <div class="card">
-          <span class="card-num">04. ARCHITECTURE</span>
-          <h3>Fast & Privacy-First</h3>
-          <p>100% offline functionality. Your private photos and encrypted credentials never touch an external server or telemetry tracking pipeline.</p>
+        <div class="cat-card">
+          <div style="font-size:2rem;">🛡️</div>
+          <h3>মিলিটারী-গ্রেড AES-256</h3>
+          <p>বিশ্বমানের হার্ডওয়্যার এনক্রিপশনে ফাইল সুরক্ষিত থাকে। পাসওয়ার্ড ছাড়া ডাটা ডিক্রিপ্ট করা অসম্ভব।</p>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- How It Works Section -->
-  <section id="how-it-works">
+  <!-- 7. BACKUP & RESTORE SYSTEM -->
+  <section id="backup">
     <div class="container">
       <div class="section-title">
-        <h2>How It Works in 3 Steps</h2>
-        <p>Setup your privacy fortress in under two minutes.</p>
+        <span class="badge">ব্যাকআপ সিস্টেম</span>
+        <h2>শক্তিশালী ব্যাকআপ ও রিস্টোর সিস্টেম</h2>
       </div>
-      <div class="features-grid">
-        <div class="card">
-          <span class="card-num">STEP 01</span>
-          <h3>Download & Install APK</h3>
-          <p>Download SurakshaVault.apk directly from this page. Allow "Install Unknown Apps" in your Android settings to complete installation.</p>
+
+      <div class="grid-2">
+        <div class="box-card">
+          <span style="color:#94A3B8; font-weight:700;">FREE TIER</span>
+          <h3 style="font-size:1.3rem; font-weight:800; margin:0.5rem 0 1rem;">লোকাল এনক্রিপ্টেড ব্যাকআপ</h3>
+          <p style="color:var(--text-muted); font-size:0.9rem; line-height:1.7;">
+            সরাসরি ফোনের মেমোরিতে পাসওয়ার্ড প্রটেক্টেড ব্যাকআপ ফাইল তৈরি করুন। সম্পূর্ণ অফলাইন এবং আজীবনের জন্য ফ্রি।
+          </p>
         </div>
-        <div class="card">
-          <span class="card-num">STEP 02</span>
-          <h3>Sign Up with Master Password</h3>
-          <p>Launch the app and create your master security profile with your Name, Email, and Master Password for account recovery.</p>
-        </div>
-        <div class="card">
-          <span class="card-num">STEP 03</span>
-          <h3>Set 4-Digit PIN & Protect</h3>
-          <p>Pick a secret 4-digit PIN. Select the apps you want to lock and import private photos and videos into your secure encrypted vault.</p>
+
+        <div class="box-card" style="border-color:var(--accent);">
+          <span style="color:var(--accent); font-weight:800;">PREMIUM TIER</span>
+          <h3 style="font-size:1.3rem; font-weight:800; margin:0.5rem 0 1rem;">হাই-স্পিড সিকিউর ক্লাউড সার্ভার</h3>
+          <p style="color:#CBD5E1; font-size:0.9rem; line-height:1.7;">
+            ফোন হারিয়ে গেলেও নতুন ফোনে লগইন করলেই নিমিষেই ক্লাউড থেকে সব ফাইল ও ছবি রিস্টোর হয়ে যাবে।
+          </p>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- Download Section -->
+  <!-- 8. DOWNLOAD CARD -->
   <section id="download">
-    <div class="container">
+    <div class="container" style="text-align: center;">
       <div class="section-title">
-        <h2>Download Suraksha Vault APK</h2>
-        <p>Choose your build package below. 100% verified, ad-free, and malware-free.</p>
+        <span class="badge">অফিসিয়াল এপিকে</span>
+        <h2>Suraksha Vault ডাউনলোড করুন</h2>
       </div>
-      <div class="download-grid">
-        <div class="dl-card">
-          <div style="font-size: 0.8rem; color: var(--accent); font-weight: 700; margin-bottom: 4px;">OFFICIAL RELEASE</div>
-          <h3 style="font-size: 1.5rem; margin-bottom: 0.5rem;">SurakshaVault.apk</h3>
-          <div class="dl-specs">
-            <div><span>Version:</span> <span>v1.0.4 Stable</span></div>
-            <div><span>Package Size:</span> <span>18.4 MB</span></div>
-            <div><span>Min Android:</span> <span>Android 8.0+</span></div>
-            <div><span>Target OS:</span> <span>Android 15 (API 35)</span></div>
-          </div>
-          <a href="SurakshaVault.apk" download="SurakshaVault.apk" class="btn btn-primary" style="width: 100%;">
-            Download SurakshaVault.apk
-          </a>
-        </div>
 
-        <div class="dl-card" style="border-color: var(--border-color);">
-          <div style="font-size: 0.8rem; color: #818CF8; font-weight: 700; margin-bottom: 4px;">DEVELOPER TESTING</div>
-          <h3 style="font-size: 1.5rem; margin-bottom: 0.5rem;">app-debug.apk</h3>
-          <div class="dl-specs">
-            <div><span>Build Flavor:</span> <span>Debug Build</span></div>
-            <div><span>Package Size:</span> <span>~19.1 MB</span></div>
-            <div><span>ADB Debugging:</span> <span>Enabled</span></div>
-            <div><span>For:</span> <span>QA & Developers</span></div>
-          </div>
-          <a href="app-debug.apk" download="app-debug.apk" class="btn btn-secondary" style="width: 100%;">
-            Download app-debug.apk
-          </a>
-        </div>
+      <div style="max-w:600px; margin:0 auto; background:#09111D; border:2px solid var(--accent); border-radius:28px; padding:2.5rem; box-shadow:0 0 35px rgba(0,255,135,0.2);">
+        <h3 style="font-size:1.8rem; font-weight:800; margin-bottom:0.25rem;">SurakshaVault.apk</h3>
+        <p style="color:var(--accent); font-family:'JetBrains Mono'; margin-bottom:1.5rem;">Version v1.0.4 (Stable) · 18.4 MB</p>
+        <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom:1.5rem;">
+          অ্যান্ড্রয়েড ৫.০ থেকে ১৫+ ইউনিভার্সাল বিল্ড · ১০০% ভাইরাস ও ট্র্যাকার মুক্ত
+        </p>
+        <button class="btn-primary" style="width:100%; font-size:1.1rem; justify-content:center;" onclick="triggerDownload()">
+          ⬇️ ডাউনলোড SurakshaVault.apk
+        </button>
       </div>
     </div>
   </section>
 
-  <!-- Footer -->
+  <!-- 9. FAQ -->
+  <section id="faq">
+    <div class="container" style="max-width: 800px;">
+      <div class="section-title">
+        <span class="badge">FAQ</span>
+        <h2>সাধারণ প্রশ্নোত্তর</h2>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">সুরক্ষ ভল্ট কি ইন্টারনেট ছাড়া (অফলাইনে) কাজ করবে? <span>+</span></div>
+        <div class="faq-a">হ্যাঁ, শতভাগ। সুরক্ষা ভল্ট সম্পূর্ণ অফলাইন-ফার্স্ট আর্কিটেকচারে তৈরি। ইন্টারনেট সংযোগ ছাড়াই সব ফাইল ও অ্যাপ লক থাকে।</div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">আমার ফোনে কি সুরক্ষ ভল্ট চলবে? (ডিভাইস কম্প্যাটিবিলিটি) <span>+</span></div>
+        <div class="faq-a">সুরক্ষা ভল্ট অ্যান্ড্রয়েড ৫.০ থেকে ১৫+ পর্যন্ত সকল ফোনে চলবে (Samsung, Xiaomi, Vivo, Oppo, Realme, Walton ইত্যাদি)।</div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">প্রিমিয়াম ক্লাউড ব্যাকআপের সুবিধা কী? <span>+</span></div>
+        <div class="faq-a">ফোন হারিয়ে গেলে বা পরিবর্তন করলে নতুন ফোনে লগইন করলেই নিমেষে সব ফাইল ও ছবি ক্লাউড সার্ভার থেকে রিস্টোর হয়ে যাবে।</div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">"File might be harmful" সতর্কবার্তা দেখালে কী করব? <span>+</span></div>
+        <div class="faq-a">এটি অ্যান্ড্রয়েডের স্বাভাবিক সতর্কতা। প্লে স্টোরের বাইরে যেকোনো ফাইল ডাউনলোডের সময় এটি আসে। নিশ্চিন্তে "Download anyway" চাপুন।</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 10. FOOTER -->
   <footer>
-    <div class="container">
-      <p style="font-weight: 600; color: #FFF; margin-bottom: 0.5rem;">
-        Suraksha Vault · "Your Privacy. Your Vault. Your Suraksha."
-      </p>
-      <p>© 2026 Suraksha Vault. All Rights Reserved. Offline-first privacy protection.</p>
+    <div class="container" style="display:flex; justify-content:space-between; flex-wrap:wrap; gap:1rem;">
+      <p>© 2026 Suraksha Vault. সর্বস্বত্ব সংরক্ষিত।</p>
+      <div>
+        <a href="#" onclick="alert('প্রাইভেসি পলিসি: সুরক্ষা ভল্ট আপনার কোনো ডাটা ট্র্যাকিং করে না।'); return false;">প্রাইভেসি পলিসি</a> ·
+        <a href="#" onclick="alert('সাপোর্ট ইমেইল: support@surakshavault.app'); return false;">সাপোর্ট</a>
+      </div>
     </div>
   </footer>
 
-  <!-- JavaScript Simulator Logic -->
+  <!-- AUTH POPUP MODAL -->
+  <div id="authModal" class="modal-overlay" onclick="closeOnOutside(event, 'authModal')">
+    <div class="modal-box">
+      <button class="modal-close" onclick="closeModal('authModal')">×</button>
+      <h3 id="authTitle" style="font-size:1.4rem; font-weight:800; margin-bottom:0.5rem; text-align:center;">লগইন করুন</h3>
+      <p style="font-size:0.8rem; color:#94A3B8; text-align:center; margin-bottom:1.5rem;">আপনার ক্রেডেনশিয়াল দিয়ে ভল্টে প্রবেশ করুন</p>
+      
+      <form onsubmit="handleAuthSubmit(event)">
+        <div id="signupNameField" style="display:none;">
+          <input type="text" placeholder="আপনার পূর্ণ নাম" class="form-input">
+        </div>
+        <input type="email" required placeholder="জিমেইল / ই-মেইল ঠিকানা" class="form-input">
+        <input type="password" required placeholder="অ্যাকাউন্ট পাসওয়ার্ড" class="form-input">
+        <div id="signupConfirmField" style="display:none;">
+          <input type="password" placeholder="পাসওয়ার্ড নিশ্চিত করুন" class="form-input">
+        </div>
+
+        <button type="submit" class="btn-primary" style="width:100%; justify-content:center; margin-top:0.5rem;" id="authSubmitBtn">
+          লগইন করুন
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- INSTALL 3-STEP MODAL -->
+  <div id="installModal" class="modal-overlay" onclick="closeOnOutside(event, 'installModal')">
+    <div class="modal-box">
+      <button class="modal-close" onclick="closeModal('installModal')">×</button>
+      <h3 style="font-size:1.3rem; font-weight:800; margin-bottom:1rem; color:var(--accent);">অ্যাপস ইনস্টল করার সহজ নিয়ম</h3>
+      
+      <div style="font-size:0.85rem; line-height:1.8; color:#E2E8F0; space-y:1rem;">
+        <p><strong>১. ডাউনলোড করুন:</strong> "Download APK" বাটনে ট্যাপ করে ফাইলটি নামিয়ে নিন।</p>
+        <p><strong>২. অনুমতি দিন:</strong> ফাইলে ট্যাপ করে Settings থেকে "Allow from this source" অন করুন।</p>
+        <p><strong>৩. ইনস্টল করুন:</strong> এবার স্ক্রিনে আসা "Install" বাটনে চাপ দিলেই অ্যাপটি চালু হয়ে যাবে।</p>
+      </div>
+
+      <button class="btn-primary" style="width:100%; justify-content:center; margin-top:1.5rem;" onclick="triggerDownload()">
+        ⬇️ এখনই APK ডাউনলোড করুন
+      </button>
+    </div>
+  </div>
+
   <script>
-    let currentPin = '';
-    const dots = document.querySelectorAll('.pin-dot');
-    const statusText = document.getElementById('vaultStatus');
-
-    function updateDots() {
-      dots.forEach((dot, index) => {
-        if (index < currentPin.length) {
-          dot.classList.add('filled');
-        } else {
-          dot.classList.remove('filled');
-        }
-      });
+    function triggerDownload() {
+      const a = document.createElement('a');
+      a.href = 'SurakshaVault.apk';
+      a.download = 'SurakshaVault.apk';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
     }
 
-    function pressPin(digit) {
-      if (currentPin.length < 4) {
-        currentPin += digit;
-        updateDots();
-        if (currentPin.length === 4) {
-          statusText.innerHTML = '<span style="color:#00FF87;">✓ Vault Unlocked! (AES-256)</span>';
-          setTimeout(() => {
-            alert('Suraksha Vault Simulation: Vault Unlocked Successfully!');
-            clearPin();
-          }, 200);
-        }
-      }
+    function handleInstallBanner() {
+      triggerDownload();
+      openInstallModal();
     }
 
-    function deletePin() {
-      currentPin = currentPin.slice(0, -1);
-      updateDots();
-      statusText.innerText = 'Enter 4-Digit Security PIN';
+    function openAuthModal(mode) {
+      document.getElementById('authModal').style.display = 'flex';
+      const isSignup = mode === 'signup';
+      document.getElementById('authTitle').innerText = isSignup ? 'নতুন অ্যাকাউন্ট তৈরি করুন' : 'লগইন করুন';
+      document.getElementById('authSubmitBtn').innerText = isSignup ? 'সাইন-আপ সম্পন্ন করুন' : 'লগইন করুন';
+      document.getElementById('signupNameField').style.display = isSignup ? 'block' : 'none';
+      document.getElementById('signupConfirmField').style.display = isSignup ? 'block' : 'none';
     }
 
-    function clearPin() {
-      currentPin = '';
-      updateDots();
-      statusText.innerText = 'Enter 4-Digit Security PIN';
+    function openInstallModal() {
+      document.getElementById('installModal').style.display = 'flex';
+    }
+
+    function closeModal(id) {
+      document.getElementById(id).style.display = 'none';
+    }
+
+    function closeOnOutside(e, id) {
+      if (e.target.id === id) closeModal(id);
+    }
+
+    function handleAuthSubmit(e) {
+      e.preventDefault();
+      alert('সফলভাবে সম্পন্ন হয়েছে! আপনার ফোনে SurakshaVault.apk ইনস্টল করে প্রবেশ করুন।');
+      closeModal('authModal');
+    }
+
+    function toggleFaq(el) {
+      const answer = el.nextElementSibling;
+      const isOpen = answer.style.display === 'block';
+      answer.style.display = isOpen ? 'none' : 'block';
+      el.querySelector('span').innerText = isOpen ? '+' : '−';
     }
   </script>
 </body>
 </html>`;
 
-  const copyCode = () => {
+  const copyToClipboard = () => {
     navigator.clipboard.writeText(standaloneHtmlCode);
     setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    setTimeout(() => setCopied(false), 2500);
   };
 
   const downloadFile = () => {
@@ -384,7 +544,7 @@ export const SingleFileExportModal: React.FC<SingleFileExportModalProps> = ({
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'suraksha-vault-landing.html';
+    a.download = 'index.html';
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -392,77 +552,66 @@ export const SingleFileExportModal: React.FC<SingleFileExportModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/85 backdrop-blur-md animate-in fade-in duration-150">
-      <div className="relative w-full max-w-4xl max-h-[90vh] rounded-2xl bg-[#080E1B] border border-slate-700/80 shadow-[0_25px_60px_rgba(0,0,0,0.95)] flex flex-col overflow-hidden text-slate-200">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-in fade-in duration-150">
+      <div className="relative w-full max-w-4xl max-h-[90vh] rounded-3xl bg-[#09111D] border-2 border-[#00FF87]/50 shadow-[0_25px_60px_rgba(0,0,0,0.95)] flex flex-col overflow-hidden text-slate-100">
         
-        {/* Header */}
-        <div className="p-4 sm:p-5 border-b border-slate-800 flex items-center justify-between bg-[#0A1224]">
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-slate-800 flex items-center justify-center text-[#00FF87]">
-              <Code className="w-4 h-4" />
+        {/* Modal Header */}
+        <div className="flex items-center justify-between p-5 border-b border-slate-800 bg-[#060A14]">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-[#00FF87]/15 border border-[#00FF87]/40 flex items-center justify-center text-[#00FF87]">
+              <Code className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="text-sm sm:text-base font-bold text-white flex items-center gap-2">
-                {lang === 'en' ? 'Complete Single-File Code (HTML/CSS/JS)' : 'সম্পূর্ণ সিঙ্গেল-ফাইল কোড (HTML/CSS/JS)'}
+              <h3 className="text-base sm:text-lg font-bold text-white">
+                সিঙ্গেল ফাইল কোড এক্সপোর্ট (Single index.html)
               </h3>
-              <p className="text-[11px] text-slate-400">
-                {lang === 'en'
-                  ? 'All responsive HTML, modern CSS, and vanilla JS in one standalone file'
-                  : 'সব রেসপন্সিভ স্টাইল ও জাভাস্ক্রিপ্টসহ একটি ফাইল'}
+              <p className="text-xs text-slate-400">
+                HTML, CSS এবং JS সম্পূর্ণ একটি ফাইলে অন্তর্ভুক্ত · গিটহাব পেজেস বা হোস্টিংয়ে সরাসরি ব্যবহারযোগ্য
               </p>
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={onClose}
+            className="p-2 rounded-xl text-slate-400 hover:text-white bg-slate-800/80 hover:bg-slate-700 transition-colors"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+
+        {/* Code Preview Box */}
+        <div className="flex-1 p-5 overflow-y-auto bg-[#04070F] font-mono text-xs text-slate-300">
+          <pre className="whitespace-pre-wrap leading-relaxed select-all">
+            {standaloneHtmlCode}
+          </pre>
+        </div>
+
+        {/* Bottom Actions */}
+        <div className="p-4 sm:p-5 border-t border-slate-800 bg-[#060A14] flex flex-col sm:flex-row items-center justify-between gap-3">
+          <span className="text-xs text-slate-400">
+            সাইজ: ~১৮ KB · কোনো বহিরাগত ফ্রেমওয়ার্ক ডিপেনডেন্সি ছাড়া
+          </span>
+
+          <div className="flex items-center gap-3 w-full sm:w-auto">
             <button
               type="button"
-              onClick={copyCode}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-black bg-[#00FF87] hover:bg-[#00E575] transition-all"
+              onClick={copyToClipboard}
+              className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl font-bold text-xs sm:text-sm text-slate-200 bg-slate-800 hover:bg-slate-700 border border-slate-700 transition-colors"
             >
-              {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
-              <span>{copied ? (lang === 'en' ? 'Copied!' : 'কপি হয়েছে!') : (lang === 'en' ? 'Copy Code' : 'কোড কপি করুন')}</span>
+              {copied ? <Check className="w-4 h-4 text-[#00FF87]" /> : <Copy className="w-4 h-4" />}
+              <span>{copied ? 'কোড কপি হয়েছে!' : 'কোড কপি করুন'}</span>
             </button>
 
             <button
               type="button"
               onClick={downloadFile}
-              className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-300 bg-slate-800 hover:bg-slate-700 transition-colors"
+              className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl font-bold text-xs sm:text-sm text-black bg-[#00FF87] hover:bg-[#00E575] shadow-[0_0_20px_rgba(0,255,135,0.35)] transition-all"
             >
-              <Download className="w-3.5 h-3.5" />
-              <span>Download .html</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={onClose}
-              className="p-1.5 rounded-lg text-slate-400 hover:text-white bg-slate-800/60 hover:bg-slate-800 transition-colors ml-1"
-            >
-              <X className="w-4 h-4" />
+              <Download className="w-4 h-4 text-black" />
+              <span>index.html ডাউনলোড করুন</span>
             </button>
           </div>
-        </div>
-
-        {/* Code Preview Viewport */}
-        <div className="flex-1 overflow-auto p-4 bg-[#050912] font-mono text-xs text-slate-300 leading-relaxed select-all">
-          <pre className="whitespace-pre">
-            <code>{standaloneHtmlCode}</code>
-          </pre>
-        </div>
-
-        {/* Footer tip */}
-        <div className="p-3 border-t border-slate-800/80 bg-[#090F1E] flex flex-col sm:flex-row items-center justify-between text-[11px] text-slate-400 gap-2">
-          <span>
-            {lang === 'en'
-              ? '💡 Save this file as index.html to deploy on GitHub Pages, Netlify, or any web host with zero dependencies.'
-              : '💡 এই কোডটি index.html নামে সেভ করে যেকোনো হোস্টিং, গিটহাব পেজেস বা নেটলিফাই-এ সরাসরি লাইভ করতে পারেন।'}
-          </span>
-          <button
-            type="button"
-            onClick={downloadFile}
-            className="text-[#00FF87] hover:underline font-semibold"
-          >
-            Download index.html file directly →
-          </button>
         </div>
 
       </div>

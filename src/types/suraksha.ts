@@ -13,8 +13,8 @@ export interface AppSpecs {
 export const APP_SPECS: AppSpecs = {
   version: 'v1.0.4 (Stable)',
   fileSize: '18.4 MB',
-  minAndroid: 'Android 8.0 (Oreo) or later',
-  targetAndroid: 'Android 15 (API 35)',
+  minAndroid: 'Android 5.0 (Lollipop) to Android 15+',
+  targetAndroid: 'Android 15+ (Universal Build)',
   packageName: 'com.suraksha.vault',
   sha256: 'a9f24b81c20e588d3e9c7f1a3048996e4927ae41e4649b934ca495991b7852b8',
   updatedDate: 'October 2026',

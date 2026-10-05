@@ -1,217 +1,157 @@
-import React, { useState } from 'react';
-import { SurakshaLanguage, APP_SPECS } from '../types/suraksha';
-import { Download, ShieldCheck, Smartphone, Sparkles, UserPlus, FolderLock, ArrowRight, Check } from 'lucide-react';
-import { AuthCardView } from './AuthCardView';
-import { VaultDashboardView } from './VaultDashboardView';
-import { PhoneSimulator } from './PhoneSimulator';
+import React from 'react';
+import { Smartphone, Sparkles, ShieldCheck, WifiOff, Lock, CheckCircle2, ArrowDown, FolderLock } from 'lucide-react';
 
 interface HeroSectionProps {
-  lang: SurakshaLanguage;
-  onDownloadClick: () => void;
-  onOpenGuide: () => void;
+  onInstallClick: () => void;
+  onOpenVault: () => void;
 }
 
 export const HeroSection: React.FC<HeroSectionProps> = ({
-  lang,
-  onDownloadClick,
-  onOpenGuide,
+  onInstallClick,
+  onOpenVault,
 }) => {
-  // Mode: 'auth' (Sign up / Login from screenshot) OR 'dashboard' (Live Dashboard from screenshot)
-  const [activeView, setActiveView] = useState<'auth' | 'dashboard'>('auth');
-  const [downloading, setDownloading] = useState(false);
-  const [countdown, setCountdown] = useState<number | null>(null);
-
-  const handleInstantDownload = (e: React.MouseEvent) => {
-    e.preventDefault();
-    setDownloading(true);
-    setCountdown(2);
-
-    const timer1 = setTimeout(() => {
-      setCountdown(1);
-    }, 700);
-
-    const timer2 = setTimeout(() => {
-      setCountdown(0);
-      onDownloadClick();
-    }, 1400);
-
-    const timer3 = setTimeout(() => {
-      setDownloading(false);
-      setCountdown(null);
-    }, 4500);
-
-    return () => {
-      clearTimeout(timer1);
-      clearTimeout(timer2);
-      clearTimeout(timer3);
-    };
-  };
-
   return (
-    <section className="relative pt-6 pb-16 sm:pt-10 sm:pb-24 overflow-hidden border-b border-slate-800/80 bg-[#060A12]">
+    <section className="relative pt-8 pb-16 sm:pt-14 sm:pb-24 overflow-hidden border-b border-slate-800/80 bg-[#060A12]">
       {/* Background glow mesh */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-[700px] pointer-events-none overflow-hidden opacity-30">
-        <div className="absolute top-10 left-1/4 w-96 h-96 bg-[#00FF87]/20 rounded-full blur-[140px]" />
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-[650px] pointer-events-none overflow-hidden opacity-30">
+        <div className="absolute top-12 left-1/4 w-96 h-96 bg-[#00FF87]/20 rounded-full blur-[140px]" />
         <div className="absolute top-24 right-1/4 w-96 h-96 bg-cyan-600/15 rounded-full blur-[130px]" />
       </div>
 
       <div className="max-w-6xl mx-auto px-4 sm:px-6 relative">
-        
-        {/* Top Header Mode Switcher: [সাইন আপ / লগইন] ⟷ [ভল্ট ড্যাশবোর্ড প্রিভিউ] */}
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-8 bg-[#09111D] p-2 sm:p-2.5 rounded-2xl border border-slate-800 max-w-4xl mx-auto shadow-lg">
-          <div className="flex items-center gap-2">
-            <span className="w-2.5 h-2.5 rounded-full bg-[#00FF87] animate-pulse" />
-            <span className="text-xs sm:text-sm font-bold text-white">
-              {lang === 'en' ? 'Live Interactive App Experience:' : 'লাইভ অ্যাপ ইন্টারফেস মোড:'}
-            </span>
-          </div>
-
-          <div className="flex items-center gap-1.5 w-full sm:w-auto">
-            <button
-              type="button"
-              onClick={() => setActiveView('auth')}
-              className={`flex-1 sm:flex-initial px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
-                activeView === 'auth'
-                  ? 'bg-[#00FF87] text-black shadow-[0_0_15px_rgba(0,255,135,0.4)]'
-                  : 'bg-slate-900 text-slate-300 hover:text-white border border-slate-800'
-              }`}
-            >
-              <UserPlus className="w-3.5 h-3.5" />
-              <span>সাইন আপ ও লগইন</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setActiveView('dashboard')}
-              className={`flex-1 sm:flex-initial px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
-                activeView === 'dashboard'
-                  ? 'bg-[#00FF87] text-black shadow-[0_0_15px_rgba(0,255,135,0.4)]'
-                  : 'bg-slate-900 text-slate-300 hover:text-white border border-slate-800'
-              }`}
-            >
-              <FolderLock className="w-3.5 h-3.5" />
-              <span>ভল্ট ড্যাশবোর্ড</span>
-            </button>
-          </div>
-        </div>
-
-        {/* VIEW 1: AUTHENTICATION (Sign Up / Login) from screenshot */}
-        {activeView === 'auth' && (
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
+          
+          {/* Left Column: Hero Content & Direct Action */}
+          <div className="lg:col-span-7 text-center lg:text-left">
             
-            {/* Left Col: Main Sign Up / Login Screen */}
-            <div className="lg:col-span-7">
-              <AuthCardView
-                lang={lang}
-                onSuccessAuth={() => setActiveView('dashboard')}
-                onDownloadApk={onDownloadClick}
-                onOpenGuide={onOpenGuide}
-              />
+            {/* Trust Kicker Banner */}
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-900 border border-[#00FF87]/40 text-xs text-slate-300 mb-5 shadow-sm">
+              <span className="w-2.5 h-2.5 rounded-full bg-[#00FF87] animate-pulse" />
+              <span className="text-[#00FF87] font-bold">১০০% ওয়েব অ্যাপ (Web App)</span>
+              <span className="text-slate-600">·</span>
+              <span>কোনো APK ফাইলের ঝামেলা নেই</span>
             </div>
 
-            {/* Right Col: Instant Download & Value Highlights */}
-            <div className="lg:col-span-5 space-y-4">
-              
-              {/* Giant Direct Download Card */}
-              <div className="rounded-3xl bg-[#09111D] border-2 border-[#00FF87]/50 p-6 shadow-[0_0_35px_rgba(0,255,135,0.15)] text-left">
-                <div className="flex items-center justify-between mb-3">
-                  <span className="text-xs font-mono font-bold text-[#00FF87]">
-                    OFFICIAL ANDROID APK
-                  </span>
-                  <span className="text-[10px] font-bold text-black bg-[#00FF87] px-2 py-0.5 rounded-full">
-                    v1.0.4 STABLE
-                  </span>
-                </div>
+            {/* App Title */}
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-white mb-3 text-balance">
+              Suraksha <span className="text-[#00FF87] drop-shadow-[0_0_25px_rgba(0,255,135,0.45)]">Vault</span>
+            </h1>
 
-                <h3 className="text-xl font-extrabold text-white mb-1">
-                  SurakshaVault.apk
-                </h3>
-                <p className="text-xs text-slate-400 mb-5 leading-relaxed">
-                  {lang === 'en'
-                    ? 'Download the full Android application directly. 100% offline, virus-free, and ads-free.'
-                    : 'সরাসরি অফিসিয়াল অ্যান্ড্রয়েড অ্যাপস ডাউনলোড করুন। কোনো অ্যাড বা ট্র্যাকিং নেই, সম্পূর্ণ অফলাইন।'}
-                </p>
+            {/* Tagline */}
+            <p className="text-lg sm:text-2xl font-semibold text-slate-200 mb-5 font-display italic">
+              "Your Privacy. Your Vault. Your Suraksha."
+            </p>
 
-                {/* Instant Download Action Button */}
-                <a
-                  href="/SurakshaVault.apk"
-                  download="SurakshaVault.apk"
-                  onClick={handleInstantDownload}
-                  className="w-full flex items-center justify-center gap-2.5 py-3.5 px-6 rounded-2xl font-bold text-sm sm:text-base text-black bg-[#00FF87] hover:bg-[#00E575] shadow-[0_0_25px_rgba(0,255,135,0.35)] transition-all transform hover:-translate-y-0.5 active:translate-y-0 text-center cursor-pointer select-none mb-3"
-                >
-                  <Download className={`w-5 h-5 text-black ${downloading ? 'animate-bounce' : ''}`} />
-                  <span>
-                    {downloading
-                      ? (countdown && countdown > 0 
-                          ? `কয়েক সেকেন্ডের মধ্যে ডাউনলোড শুরু হচ্ছে (${countdown})...` 
-                          : 'ডাউনলোড শুরু হয়েছে!')
-                      : 'অ্যাপস ডাউনলোড করুন (১৮.৪ MB)'}
-                  </span>
-                </a>
+            {/* Subtext */}
+            <p className="text-base sm:text-lg text-slate-300 mb-8 max-w-xl mx-auto lg:mx-0 leading-relaxed font-normal">
+              আপনার ফোনে কোনো অপরিচিত এপিকে ফাইল ডাউনলোড ছাড়াই সরাসরি ব্রাউজার থেকে <strong className="text-white">১-ক্লিকে মোবাইলের হোমস্ক্রিনে ইনস্টল করে নিন</strong>। ফেসবুক, হোয়াটসঅ্যাপ ইত্যাদি অ্যাপের মতোই হোমস্ক্রিন থেকে ফুলস্ক্রিনে সম্পূর্ণ অফলাইনে ব্যবহার করুন!
+            </p>
 
-                <p className="text-[11px] text-center text-slate-400 mb-4">
-                  ⚡ ক্লিক করার সাথে সাথে মাত্র কয়েক সেকেন্ডে সরাসরি ডাউনলোড শুরু হবে
-                </p>
-
-                {/* 'অ্যাপস ইনস্টল করুন' button */}
-                <button
-                  type="button"
-                  onClick={onOpenGuide}
-                  className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl text-xs font-bold text-white bg-slate-800 hover:bg-slate-700 border border-slate-700 transition-colors"
-                >
-                  <Smartphone className="w-4 h-4 text-[#00FF87]" />
-                  <span>অ্যাপস ইনস্টল করার সহজ নিয়ম (Guide)</span>
-                </button>
-              </div>
-
-              {/* Specs pill */}
-              <div className="p-4 rounded-2xl bg-[#09111D] border border-slate-800 text-xs text-slate-300 space-y-2">
-                <div className="flex justify-between">
-                  <span className="text-slate-400">অপারেটিং সিস্টেম:</span>
-                  <span className="text-white font-medium">Android 8.0 - Android 15</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-slate-400">এনক্রিপশন স্ট্যান্ডার্ড:</span>
-                  <span className="text-[#00FF87] font-mono font-medium">AES-256 Hardware Level</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-slate-400">প্যাকেজ সাইজ:</span>
-                  <span className="text-white font-mono">18.4 MB</span>
-                </div>
-              </div>
-
-            </div>
-
-          </div>
-        )}
-
-        {/* VIEW 2: VAULT DASHBOARD from Screenshot_20261005_033619.jpg */}
-        {activeView === 'dashboard' && (
-          <div className="space-y-6">
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-3 bg-[#0A1624] border border-[#00FF87]/30 p-3.5 rounded-2xl">
-              <div className="flex items-center gap-2 text-xs sm:text-sm text-slate-200">
-                <span className="w-2 h-2 rounded-full bg-[#00FF87]" />
-                <span>এটি সুরক্ষ ভল্ট অ্যাপসের ভেতরের আসল ড্যাশবোর্ড। আপনি সরাসরি ফাইল বা নোট দেখতে ও যোগ করতে পারেন।</span>
-              </div>
-              <a
-                href="/SurakshaVault.apk"
-                download="SurakshaVault.apk"
-                onClick={handleInstantDownload}
-                className="px-4 py-2 rounded-xl text-xs font-bold text-black bg-[#00FF87] hover:bg-[#00E575] flex items-center gap-1.5 shadow-md shrink-0"
+            {/* Primary Action Buttons */}
+            <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3.5 sm:gap-4 mb-8">
+              <button
+                type="button"
+                onClick={onInstallClick}
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-3 px-8 py-4 text-base font-extrabold text-black bg-[#00FF87] hover:bg-[#00E575] rounded-2xl shadow-[0_0_30px_rgba(0,255,135,0.4)] hover:shadow-[0_0_45px_rgba(0,255,135,0.6)] transition-all transform hover:-translate-y-0.5 active:translate-y-0"
               >
-                <Download className="w-3.5 h-3.5" />
-                <span>অ্যাপস ডাউনলোড করুন</span>
-              </a>
+                <Sparkles className="w-5 h-5 text-black" />
+                <span>মোবাইলের হোমস্ক্রিনে ইনস্টল করুন</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={onOpenVault}
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-4 text-base font-bold text-slate-200 bg-slate-900/90 hover:bg-slate-800 border-2 border-slate-700/80 hover:border-[#00FF87]/50 rounded-2xl transition-all shadow-md group"
+              >
+                <FolderLock className="w-5 h-5 text-[#00FF87] group-hover:scale-110 transition-transform" />
+                <span>সরাসরি ভল্ট দেখুন</span>
+              </button>
             </div>
 
-            <VaultDashboardView
-              lang={lang}
-              onLock={() => setActiveView('auth')}
-              onOpenAppLocker={() => alert('মোবাইল অ্যাপ লকার সেটিংস: হোয়াটসঅ্যাপ, ফেসবুক ও বিকাশ লক করা আছে।')}
-            />
-          </div>
-        )}
+            {/* Quick Spec Highlights */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-6 border-t border-slate-800/80 text-left">
+              <div className="p-2.5 rounded-xl bg-slate-900/50 border border-slate-800">
+                <span className="text-[10px] text-slate-400 block">ইনস্টল মোড</span>
+                <span className="text-xs font-bold text-white">Direct Home Screen</span>
+              </div>
+              <div className="p-2.5 rounded-xl bg-slate-900/50 border border-slate-800">
+                <span className="text-[10px] text-slate-400 block">ইন্টারনেট</span>
+                <span className="text-xs font-bold text-[#00FF87]">১০০% অফলাইনে চলে</span>
+              </div>
+              <div className="p-2.5 rounded-xl bg-slate-900/50 border border-slate-800">
+                <span className="text-[10px] text-slate-400 block">এনক্রিপশন</span>
+                <span className="text-xs font-bold text-white">AES-256 Hardware</span>
+              </div>
+              <div className="p-2.5 rounded-xl bg-slate-900/50 border border-slate-800">
+                <span className="text-[10px] text-slate-400 block">ফোন স্টোরেজ</span>
+                <span className="text-xs font-mono font-bold text-white">০% মেমোরি অপচয়</span>
+              </div>
+            </div>
 
+          </div>
+
+          {/* Right Column: Sleek Phone Showcase Graphic */}
+          <div className="lg:col-span-5 flex justify-center">
+            <div className="relative w-full max-w-[320px] sm:max-w-[340px]">
+              {/* Outer Cyan / Neon Glow */}
+              <div className="absolute -inset-2 bg-gradient-to-tr from-[#00FF87]/30 to-cyan-500/25 rounded-[44px] blur-xl opacity-70" />
+
+              {/* Phone Frame */}
+              <div className="relative bg-[#050812] border-[3px] border-slate-700/80 rounded-[40px] shadow-[0_25px_60px_rgba(0,0,0,0.95)] overflow-hidden p-3.5">
+                
+                {/* Punch hole */}
+                <div className="w-3.5 h-3.5 rounded-full bg-slate-900 border border-slate-700 mx-auto mb-3" />
+
+                {/* Shield Card Screen */}
+                <div className="rounded-3xl bg-[#09111D] border border-slate-800 p-5 text-center space-y-4">
+                  
+                  {/* Glowing Shield Avatar */}
+                  <div className="w-16 h-16 rounded-full p-1 bg-gradient-to-b from-[#00FF87] via-cyan-400 to-[#0A261D] flex items-center justify-center mx-auto shadow-[0_0_25px_rgba(0,255,135,0.4)]">
+                    <div className="w-full h-full rounded-full bg-[#051410] border-2 border-[#00FF87] flex items-center justify-center text-[#00FF87]">
+                      <ShieldCheck className="w-8 h-8" />
+                    </div>
+                  </div>
+
+                  <div>
+                    <h3 className="text-lg font-extrabold text-white">Suraksha Vault</h3>
+                    <p className="text-[11px] text-[#00FF87] font-mono mt-0.5">Mobile Web App</p>
+                  </div>
+
+                  {/* 4 Feature Badges inside Phone */}
+                  <div className="space-y-2 text-left">
+                    <div className="p-2.5 rounded-xl bg-slate-900 border border-slate-800 flex items-center gap-2.5 text-xs text-slate-200">
+                      <Sparkles className="w-4 h-4 text-[#00FF87] shrink-0" />
+                      <span>১-ট্যাপে সরাসরি হোমস্ক্রিনে চলে যায়</span>
+                    </div>
+
+                    <div className="p-2.5 rounded-xl bg-slate-900 border border-slate-800 flex items-center gap-2.5 text-xs text-slate-200">
+                      <WifiOff className="w-4 h-4 text-cyan-400 shrink-0" />
+                      <span>ইন্টারনেট ছাড়াও ফুলস্ক্রিনে কাজ করে</span>
+                    </div>
+
+                    <div className="p-2.5 rounded-xl bg-slate-900 border border-slate-800 flex items-center gap-2.5 text-xs text-slate-200">
+                      <Lock className="w-4 h-4 text-emerald-400 shrink-0" />
+                      <span>৪-ডিজিট পিন দিয়ে প্রতিদিন আনলক</span>
+                    </div>
+                  </div>
+
+                  {/* Direct Phone Install Button */}
+                  <button
+                    type="button"
+                    onClick={onInstallClick}
+                    className="w-full py-3 px-4 rounded-xl font-bold text-xs text-black bg-[#00FF87] hover:bg-[#00E575] flex items-center justify-center gap-2 shadow-[0_0_15px_rgba(0,255,135,0.3)] transition-all"
+                  >
+                    <Smartphone className="w-4 h-4" />
+                    <span>হোমস্ক্রিনে ইনস্টল করুন</span>
+                  </button>
+
+                </div>
+
+              </div>
+            </div>
+          </div>
+
+        </div>
       </div>
     </section>
   );

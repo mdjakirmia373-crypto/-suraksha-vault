@@ -4,168 +4,185 @@
  */
 
 import React, { useState } from 'react';
-import { SurakshaLanguage } from './types/suraksha';
+import { TopDownloadBanner } from './components/TopDownloadBanner';
 import { SurakshaTopBar } from './components/SurakshaTopBar';
 import { HeroSection } from './components/HeroSection';
+import { VaultDashboardView } from './components/VaultDashboardView';
+import { ProtectedCategoriesSection } from './components/ProtectedCategoriesSection';
+import { CompatibilitySection } from './components/CompatibilitySection';
 import { FeaturesSection } from './components/FeaturesSection';
-import { HowItWorksSection } from './components/HowItWorksSection';
-import { DownloadSection } from './components/DownloadSection';
+import { BackupRestoreSection } from './components/BackupRestoreSection';
 import { InstallGuideSection } from './components/InstallGuideSection';
+import { DownloadSection } from './components/DownloadSection';
 import { FaqSection } from './components/FaqSection';
 import { Footer } from './components/Footer';
-import { DownloadModal } from './components/DownloadModal';
-import { DownloadToast } from './components/DownloadToast';
+import { AuthModal } from './components/AuthModal';
 import { InstallModal } from './components/InstallModal';
+import { DownloadToast } from './components/DownloadToast';
 import { SingleFileExportModal } from './components/SingleFileExportModal';
 import { PrivacyModal } from './components/PrivacyModal';
 import { SupportModal } from './components/SupportModal';
-import { TopDownloadBanner } from './components/TopDownloadBanner';
-import { triggerDirectDownload } from './utils/downloader';
+import { HomeScreenInstallModal } from './components/HomeScreenInstallModal';
+import { usePWAInstall } from './hooks/usePWAInstall';
+import { ShieldCheck } from 'lucide-react';
 
 export default function App() {
-  const [lang, setLang] = useState<SurakshaLanguage>('bn');
-  const [downloadModalOpen, setDownloadModalOpen] = useState(false);
-  const [downloadToastOpen, setDownloadToastOpen] = useState(false);
+  const [authModalOpen, setAuthModalOpen] = useState(false);
+  const [authMode, setAuthMode] = useState<'login' | 'signup'>('login');
   const [installModalOpen, setInstallModalOpen] = useState(false);
-  const [downloadFilename, setDownloadFilename] = useState('SurakshaVault.apk');
+  const [homeScreenModalOpen, setHomeScreenModalOpen] = useState(false);
   const [codeExportModalOpen, setCodeExportModalOpen] = useState(false);
   const [privacyModalOpen, setPrivacyModalOpen] = useState(false);
   const [supportModalOpen, setSupportModalOpen] = useState(false);
 
-  const toggleLang = () => {
-    setLang((prev) => (prev === 'en' ? 'bn' : 'en'));
-  };
+  const pwa = usePWAInstall();
 
-  // Instant direct download handler: Triggers browser file download immediately!
-  const handleDirectDownload = (filename: string = 'SurakshaVault.apk') => {
-    setDownloadFilename(filename);
-    triggerDirectDownload(filename);
-    setDownloadToastOpen(true);
-  };
-
-  const scrollToInstallGuide = () => {
-    const el = document.getElementById('install-guide');
-    if (el) {
-      el.scrollIntoView({ behavior: 'smooth' });
-    } else {
-      setInstallModalOpen(true);
+  // Instant 1-click Home Screen install handler
+  const handleInstallFlow = async () => {
+    // 1. Try native PWA prompt if browser is ready
+    if (pwa.isInstallable) {
+      const accepted = await pwa.install();
+      if (accepted) {
+        return;
+      }
     }
+
+    // 2. Open dedicated Home Screen installation modal & guide
+    setHomeScreenModalOpen(true);
   };
 
-  const scrollToDownload = () => {
-    const el = document.getElementById('download');
+  const openLoginModal = () => {
+    setAuthMode('login');
+    setAuthModalOpen(true);
+  };
+
+  const openSignUpModal = () => {
+    setAuthMode('signup');
+    setAuthModalOpen(true);
+  };
+
+  const scrollToVault = () => {
+    const el = document.getElementById('app-vault');
     if (el) {
       el.scrollIntoView({ behavior: 'smooth' });
-    } else {
-      handleDirectDownload('SurakshaVault.apk');
     }
   };
 
   return (
     <div id="top" className="min-h-screen bg-[#060A12] text-slate-100 flex flex-col font-sans selection:bg-[#00FF87] selection:text-black">
       
-      {/* 0. Top Smart Download Bar that shows immediately when anyone opens the website */}
+      {/* 1. TOP STICKY INSTALL BANNER (Web App) */}
       <TopDownloadBanner
-        lang={lang}
-        onDownloadClick={() => handleDirectDownload('SurakshaVault.apk')}
-        onOpenGuide={() => setInstallModalOpen(true)}
+        isInstallable={pwa.isInstallable}
+        onInstallClick={handleInstallFlow}
       />
 
-      {/* Top Bar with 'অ্যাপস ইনস্টল করুন' and 'Download APK' right at the top */}
+      {/* 2. HEADER / NAVIGATION BAR */}
       <SurakshaTopBar
-        lang={lang}
-        onToggleLang={toggleLang}
-        onOpenDownload={() => handleDirectDownload('SurakshaVault.apk')}
-        onOpenInstall={() => setInstallModalOpen(true)}
-        onOpenCodeExport={() => setCodeExportModalOpen(true)}
+        onOpenLogin={openLoginModal}
+        onOpenSignUp={openSignUpModal}
+        onInstallClick={handleInstallFlow}
       />
 
       <main className="flex-1">
-        {/* 1. Hero Section */}
+        {/* 3.1 Hero Section (Web App Home Screen Focused) */}
         <HeroSection
-          lang={lang}
-          onDownloadClick={() => handleDirectDownload('SurakshaVault.apk')}
-          onOpenGuide={() => setInstallModalOpen(true)}
+          onInstallClick={handleInstallFlow}
+          onOpenVault={scrollToVault}
         />
 
-        {/* 2. Key Features Section */}
-        <FeaturesSection lang={lang} />
+        {/* 3.2 LIVE WEB APP VAULT DASHBOARD */}
+        <section id="app-vault" className="py-12 sm:py-16 border-b border-slate-800/80 bg-[#070C16]">
+          <div className="max-w-5xl mx-auto px-4 sm:px-6">
+            <div className="text-center mb-8">
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-900 border border-[#00FF87]/30 text-xs text-[#00FF87] font-semibold mb-2 shadow-sm">
+                <ShieldCheck className="w-3.5 h-3.5" />
+                <span>লাইভ ওয়েব অ্যাপ ইন্টারফেস</span>
+              </div>
+              <h2 className="text-2xl sm:text-3xl font-extrabold text-white">
+                সুরক্ষা ভল্ট সরাসরি ব্যবহার করুন
+              </h2>
+              <p className="text-xs sm:text-sm text-slate-400 mt-1">
+                হোমস্ক্রিনে ইনস্টল করার পর এই অ্যাপটি কোনো ব্রাউজার বার ছাড়াই ফুলস্ক্রিনে চলবে।
+              </p>
+            </div>
 
-        {/* 3. How It Works Section */}
-        <HowItWorksSection
-          lang={lang}
-          onDownloadClick={() => handleDirectDownload('SurakshaVault.apk')}
-        />
+            <VaultDashboardView
+              lang="bn"
+              onLock={() => openLoginModal()}
+              onOpenAppLocker={() => alert('মোবাইল অ্যাপস লকার সেটিংস: হোয়াটসঅ্যাপ ও বিকাশ লক করা রয়েছে।')}
+            />
+          </div>
+        </section>
 
-        {/* 4. Download Section */}
+        {/* 3.3 Protected Categories Section (All Files, Images, Videos, Documents, Notes) */}
+        <ProtectedCategoriesSection />
+
+        {/* 3.4 Universal Compatibility & Hybrid Usage */}
+        <CompatibilitySection />
+
+        {/* 3.5 Key Features (Dual Password, Advanced App Locker, Military AES-256) */}
+        <FeaturesSection />
+
+        {/* 3.6 Powerful Backup & Restore System */}
+        <BackupRestoreSection />
+
+        {/* 3.7 How to Add to Home Screen (3 Simple Steps) */}
+        <InstallGuideSection />
+
+        {/* 3.8 Web App Home Screen Install Center */}
         <DownloadSection
-          lang={lang}
-          onTriggerDownload={(filename) => handleDirectDownload(filename)}
+          onInstallClick={handleInstallFlow}
         />
 
-        {/* 5. Installation Guide Section */}
-        <InstallGuideSection lang={lang} />
-
-        {/* 6. FAQ Section */}
-        <FaqSection lang={lang} />
+        {/* 3.9 Simple FAQ Accordion */}
+        <FaqSection />
       </main>
 
-      {/* 7. Footer */}
+      {/* 3.10 Footer */}
       <Footer
-        lang={lang}
         onOpenPrivacy={() => setPrivacyModalOpen(true)}
         onOpenSupport={() => setSupportModalOpen(true)}
         onOpenCodeExport={() => setCodeExportModalOpen(true)}
       />
 
-      {/* Instant Download Toast Notification */}
-      {downloadToastOpen && (
-        <DownloadToast
-          filename={downloadFilename}
-          lang={lang}
-          onClose={() => setDownloadToastOpen(false)}
-          onOpenGuide={() => {
-            setDownloadToastOpen(false);
-            setInstallModalOpen(true);
-          }}
+      {/* POPUP MODAL: Interactive Login & Sign Up */}
+      {authModalOpen && (
+        <AuthModal
+          initialMode={authMode}
+          onClose={() => setAuthModalOpen(false)}
         />
       )}
 
-      {/* Dedicated 'অ্যাপস ইনস্টল করুন' Modal */}
-      {installModalOpen && (
-        <InstallModal
-          lang={lang}
-          onClose={() => setInstallModalOpen(false)}
+      {/* POPUP MODAL: Home Screen Instant App Installation */}
+      {homeScreenModalOpen && (
+        <HomeScreenInstallModal
+          isInstallable={pwa.isInstallable}
+          onNativeInstall={pwa.install}
+          onClose={() => setHomeScreenModalOpen(false)}
         />
       )}
 
-      {/* Fallback detailed modal if requested */}
-      {downloadModalOpen && (
-        <DownloadModal
-          filename={downloadFilename}
-          lang={lang}
-          onClose={() => setDownloadModalOpen(false)}
-          onOpenGuide={scrollToInstallGuide}
-        />
-      )}
-
+      {/* Single-file HTML code exporter modal */}
       {codeExportModalOpen && (
         <SingleFileExportModal
-          lang={lang}
+          lang="bn"
           onClose={() => setCodeExportModalOpen(false)}
         />
       )}
 
+      {/* Privacy Policy Modal */}
       {privacyModalOpen && (
         <PrivacyModal
-          lang={lang}
+          lang="bn"
           onClose={() => setPrivacyModalOpen(false)}
         />
       )}
 
+      {/* Support Modal */}
       {supportModalOpen && (
         <SupportModal
-          lang={lang}
+          lang="bn"
           onClose={() => setSupportModalOpen(false)}
         />
       )}
