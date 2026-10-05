@@ -1,0 +1,6 @@
+{
+  "name": "Suraksha Vault - Secure Android Vault & App Locker",
+  "description": "Your Privacy. Your Vault. Your Suraksha. Download the ultimate Android privacy vault with dual-password protection, app lock, and media encryption.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
