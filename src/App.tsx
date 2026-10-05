@@ -4,32 +4,29 @@
  */
 
 import React, { useState } from 'react';
-import { TopDownloadBanner } from './components/TopDownloadBanner';
 import { SurakshaTopBar } from './components/SurakshaTopBar';
 import { HeroSection } from './components/HeroSection';
-import { VaultDashboardView } from './components/VaultDashboardView';
+import { FeaturesSection } from './components/FeaturesSection';
 import { ProtectedCategoriesSection } from './components/ProtectedCategoriesSection';
 import { CompatibilitySection } from './components/CompatibilitySection';
-import { FeaturesSection } from './components/FeaturesSection';
-import { BackupRestoreSection } from './components/BackupRestoreSection';
-import { InstallGuideSection } from './components/InstallGuideSection';
-import { DownloadSection } from './components/DownloadSection';
+import { VaultDashboardView } from './components/VaultDashboardView';
 import { FaqSection } from './components/FaqSection';
 import { Footer } from './components/Footer';
 import { AuthModal } from './components/AuthModal';
-import { InstallModal } from './components/InstallModal';
-import { DownloadToast } from './components/DownloadToast';
+import { HomeScreenInstallModal } from './components/HomeScreenInstallModal';
 import { SingleFileExportModal } from './components/SingleFileExportModal';
 import { PrivacyModal } from './components/PrivacyModal';
 import { SupportModal } from './components/SupportModal';
-import { HomeScreenInstallModal } from './components/HomeScreenInstallModal';
+import { UserDashboardPage } from './components/UserDashboardPage';
 import { usePWAInstall } from './hooks/usePWAInstall';
-import { ShieldCheck } from 'lucide-react';
+import { Sparkles } from 'lucide-react';
 
 export default function App() {
+  const [currentUser, setCurrentUser] = useState<{ name: string; email: string } | null>(null);
+  const [currentView, setCurrentView] = useState<'landing' | 'dashboard'>('landing');
+
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [authMode, setAuthMode] = useState<'login' | 'signup'>('login');
-  const [installModalOpen, setInstallModalOpen] = useState(false);
   const [homeScreenModalOpen, setHomeScreenModalOpen] = useState(false);
   const [codeExportModalOpen, setCodeExportModalOpen] = useState(false);
   const [privacyModalOpen, setPrivacyModalOpen] = useState(false);
@@ -37,18 +34,23 @@ export default function App() {
 
   const pwa = usePWAInstall();
 
-  // Instant 1-click Home Screen install handler
-  const handleInstallFlow = async () => {
-    // 1. Try native PWA prompt if browser is ready
+  // Pure Home Screen installation - goes directly to mobile screen without File Manager
+  const handleInstallWebApp = async () => {
+    // 1. Try native browser home screen install prompt
     if (pwa.isInstallable) {
       const accepted = await pwa.install();
-      if (accepted) {
-        return;
-      }
+      if (accepted) return;
     }
 
-    // 2. Open dedicated Home Screen installation modal & guide
+    // 2. Open guidance modal showing how to add straight to mobile screen
     setHomeScreenModalOpen(true);
+  };
+
+  const handleOpenWebApp = () => {
+    const el = document.getElementById('webapp-vault');
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth' });
+    }
   };
 
   const openLoginModal = () => {
@@ -61,100 +63,114 @@ export default function App() {
     setAuthModalOpen(true);
   };
 
-  const scrollToVault = () => {
-    const el = document.getElementById('app-vault');
-    if (el) {
-      el.scrollIntoView({ behavior: 'smooth' });
-    }
+  const handleAuthSuccess = (user: { name: string; email: string }) => {
+    setCurrentUser(user);
+    setCurrentView('dashboard');
+    setAuthModalOpen(false);
   };
 
-  return (
-    <div id="top" className="min-h-screen bg-[#060A12] text-slate-100 flex flex-col font-sans selection:bg-[#00FF87] selection:text-black">
-      
-      {/* 1. TOP STICKY INSTALL BANNER (Web App) */}
-      <TopDownloadBanner
-        isInstallable={pwa.isInstallable}
-        onInstallClick={handleInstallFlow}
-      />
+  const handleLogout = () => {
+    setCurrentUser(null);
+    setCurrentView('landing');
+  };
 
-      {/* 2. HEADER / NAVIGATION BAR */}
+  // If user is logged in and views the Personal Vault Dashboard Page
+  if (currentView === 'dashboard' && currentUser) {
+    return (
+      <div className="min-h-screen bg-[#070B14]">
+        <UserDashboardPage
+          user={currentUser}
+          onLogout={handleLogout}
+          onGoToHome={() => setCurrentView('landing')}
+          onInstallApp={handleInstallWebApp}
+        />
+
+        {/* Home Screen Web App Guidance Modal */}
+        {homeScreenModalOpen && (
+          <HomeScreenInstallModal
+            isInstallable={pwa.isInstallable}
+            onNativeInstall={pwa.install}
+            onClose={() => setHomeScreenModalOpen(false)}
+          />
+        )}
+      </div>
+    );
+  }
+
+  // Default Landing Page View
+  return (
+    <div id="top" className="min-h-screen bg-[#0B0F19] text-slate-100 flex flex-col font-sans selection:bg-[#00FF88] selection:text-black">
+      
+      {/* 1. Header / Navigation Bar (Clean & Professional) */}
       <SurakshaTopBar
+        user={currentUser}
         onOpenLogin={openLoginModal}
         onOpenSignUp={openSignUpModal}
-        onInstallClick={handleInstallFlow}
+        onGoToDashboard={() => setCurrentView('dashboard')}
+        onLogout={handleLogout}
       />
 
       <main className="flex-1">
-        {/* 3.1 Hero Section (Web App Home Screen Focused) */}
+        {/* 2. Hero Section (Catchy Title, Subtitle, Floating Mockup & 2 Key CTAs) */}
         <HeroSection
-          onInstallClick={handleInstallFlow}
-          onOpenVault={scrollToVault}
+          onInstallWebApp={handleInstallWebApp}
+          onOpenWebApp={handleOpenWebApp}
         />
 
-        {/* 3.2 LIVE WEB APP VAULT DASHBOARD */}
-        <section id="app-vault" className="py-12 sm:py-16 border-b border-slate-800/80 bg-[#070C16]">
+        {/* 3. Promotional Feature Grid (3 Glassmorphism Cards: সামরিক-গ্রেড, ডুয়েল-পাসওয়ার্ড, হাইব্রিড ব্যাকআপ) */}
+        <FeaturesSection />
+
+        {/* 4. Clean Category Section (5 Clearly defined categories with icons) */}
+        <ProtectedCategoriesSection />
+
+        {/* 5. Android Compatibility (Tech-Spec Tablet Card) */}
+        <CompatibilitySection />
+
+        {/* 6. Live Interactive Web App Vault Showcase */}
+        <section id="webapp-vault" className="py-16 sm:py-24 border-b border-slate-800/80 bg-[#090D18]">
           <div className="max-w-5xl mx-auto px-4 sm:px-6">
-            <div className="text-center mb-8">
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-900 border border-[#00FF87]/30 text-xs text-[#00FF87] font-semibold mb-2 shadow-sm">
-                <ShieldCheck className="w-3.5 h-3.5" />
-                <span>লাইভ ওয়েব অ্যাপ ইন্টারফেস</span>
+            <div className="text-center mb-10">
+              <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-slate-900 border border-[#00FF88]/30 text-xs text-[#00FF88] font-bold mb-2 shadow-sm">
+                <Sparkles className="w-3.5 h-3.5" />
+                <span>লাইভ অ্যাপ ড্যাশবোর্ড</span>
               </div>
               <h2 className="text-2xl sm:text-3xl font-extrabold text-white">
-                সুরক্ষা ভল্ট সরাসরি ব্যবহার করুন
+                সুরক্ষা ভল্ট সরাসরি ওয়েবে অভিজ্ঞতা নিন
               </h2>
-              <p className="text-xs sm:text-sm text-slate-400 mt-1">
-                হোমস্ক্রিনে ইনস্টল করার পর এই অ্যাপটি কোনো ব্রাউজার বার ছাড়াই ফুলস্ক্রিনে চলবে।
+              <p className="text-xs sm:text-sm text-slate-400 mt-1 max-w-xl mx-auto">
+                আপনি ওয়েবসাইটে থেকেই ভল্টের আসল ফিচার, নোট ও সিক্রেট ফাইল যোগ করে দেখতে পারেন।
               </p>
             </div>
 
             <VaultDashboardView
               lang="bn"
-              onLock={() => openLoginModal()}
-              onOpenAppLocker={() => alert('মোবাইল অ্যাপস লকার সেটিংস: হোয়াটসঅ্যাপ ও বিকাশ লক করা রয়েছে।')}
+              onLock={openLoginModal}
+              onOpenAppLocker={() => alert('অ্যাপ লকার সেটিংস: হোয়াটসঅ্যাপ, ফেসবুক ও বিকাশ লক করা রয়েছে।')}
             />
           </div>
         </section>
 
-        {/* 3.3 Protected Categories Section (All Files, Images, Videos, Documents, Notes) */}
-        <ProtectedCategoriesSection />
-
-        {/* 3.4 Universal Compatibility & Hybrid Usage */}
-        <CompatibilitySection />
-
-        {/* 3.5 Key Features (Dual Password, Advanced App Locker, Military AES-256) */}
-        <FeaturesSection />
-
-        {/* 3.6 Powerful Backup & Restore System */}
-        <BackupRestoreSection />
-
-        {/* 3.7 How to Add to Home Screen (3 Simple Steps) */}
-        <InstallGuideSection />
-
-        {/* 3.8 Web App Home Screen Install Center */}
-        <DownloadSection
-          onInstallClick={handleInstallFlow}
-        />
-
-        {/* 3.9 Simple FAQ Accordion */}
+        {/* 7. Simple Clean FAQ Accordion */}
         <FaqSection />
       </main>
 
-      {/* 3.10 Footer */}
+      {/* 8. Modern Footer */}
       <Footer
         onOpenPrivacy={() => setPrivacyModalOpen(true)}
         onOpenSupport={() => setSupportModalOpen(true)}
         onOpenCodeExport={() => setCodeExportModalOpen(true)}
       />
 
-      {/* POPUP MODAL: Interactive Login & Sign Up */}
+      {/* Interactive Auth Popup Modal (Login / Sign-Up) */}
       {authModalOpen && (
         <AuthModal
           initialMode={authMode}
           onClose={() => setAuthModalOpen(false)}
+          onAuthSuccess={handleAuthSuccess}
         />
       )}
 
-      {/* POPUP MODAL: Home Screen Instant App Installation */}
+      {/* Home Screen Web App Guidance Modal */}
       {homeScreenModalOpen && (
         <HomeScreenInstallModal
           isInstallable={pwa.isInstallable}
@@ -163,7 +179,7 @@ export default function App() {
         />
       )}
 
-      {/* Single-file HTML code exporter modal */}
+      {/* Single-file index.html Code Exporter Modal */}
       {codeExportModalOpen && (
         <SingleFileExportModal
           lang="bn"

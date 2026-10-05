@@ -1,123 +1,67 @@
 import React from 'react';
-import { Smartphone, WifiOff, Cloud, CheckCircle2, ShieldCheck, Zap, Layers } from 'lucide-react';
+import { Smartphone, Check, ShieldCheck, Cpu, HardDrive, Zap, Layers } from 'lucide-react';
 
 export const CompatibilitySection: React.FC = () => {
-  const brands = [
-    'Samsung Galaxy', 'Xiaomi / Redmi / POCO', 'Vivo', 'Oppo',
-    'Realme', 'OnePlus', 'Motorola', 'Google Pixel',
-    'Infinix & Tecno', 'Symphony & Walton', 'Honor', 'Sony Xperia'
+  const specs = [
+    { label: 'সাপোর্টেড অপারেটিং সিস্টেম', val: 'Android 5.0 (Lollipop) থেকে Android 15+ (Universal)' },
+    { label: 'প্যাকেজ সাইজ ও ওজন', val: '১৮.৪ মেগাবাইট (আল্ট্রা-লাইটওয়েট)' },
+    { label: 'হার্ডওয়্যার এনক্রিপশন', val: 'মিলিটারি-গ্রেড AES-256 Bit Cipher' },
+    { label: 'প্রসেসর আর্কিটেকচার', val: 'ARM64, ARMv7, x86_64 (সকল চিপসেটে অপ্টিমাইজড)' },
+    { label: 'রুট পারমিশন প্রয়োজন?', val: 'না, কোনো রুটের প্রয়োজন নেই (১০০% নিরাপদ)' },
+    { label: 'সমর্থিত ব্র্যান্ডসমূহ', val: 'Samsung, Xiaomi, Vivo, Oppo, Realme, OnePlus, Infinix, Walton, Symphony সহ সকল অ্যান্ড্রয়েড ফোন' },
+    { label: 'ইন্টারনেট বাধ্যবাধকতা', val: 'কোনো ইন্টারনেট দরকার নেই (১০০% অফলাইনে চলে)' },
   ];
 
   return (
-    <section id="compatibility" className="py-16 sm:py-24 border-b border-slate-800/80 bg-[#060A12] relative overflow-hidden">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 relative">
+    <section id="compatibility" className="py-16 sm:py-24 border-b border-slate-800/80 bg-[#0B0F19] relative">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 relative">
         
         {/* Section Header */}
-        <div className="text-center max-w-2xl mx-auto mb-14">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-900 border border-slate-800 text-xs text-[#00FF87] font-semibold mb-3">
-            <Smartphone className="w-3.5 h-3.5" />
-            <span>ইউনিভার্সাল কম্প্যাটিবিলিটি ও হাইব্রিড সুবিধা</span>
+        <div className="text-center max-w-2xl mx-auto mb-12">
+          <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-slate-900 border border-slate-800 text-xs text-[#00FF88] font-bold mb-3 shadow-sm">
+            <Cpu className="w-3.5 h-3.5" />
+            <span>সিস্টেম স্পেসিফিকেশন</span>
           </div>
           <h2 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight mb-3">
-            সকল অ্যান্ড্রয়েড ডিভাইসে কাজ করে
+            টেকনিক্যাল কম্প্যাটিবিলিটি স্পেক্স
           </h2>
           <p className="text-sm sm:text-base text-slate-400">
-            অ্যান্ড্রয়েড ৫.০ থেকে শুরু করে সর্বশেষ অ্যান্ড্রয়েড ১৫+ পর্যন্ত যেকোনো ব্রান্ডের স্মার্টফোনে কোনো ল্যাগ ছাড়া মসৃণভাবে চলবে।
+            আপনার ফোনটি পুরাতন হোক বা নতুন ফ্ল্যাগশিপ, সুরক্ষা ভল্ট প্রতিটি ফোনে নিখুঁতভাবে চলবে।
           </p>
         </div>
 
-        {/* 2 Big Core Highlight Cards */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-12">
+        {/* Tech-Spec Tablet Card */}
+        <div className="rounded-3xl bg-[#0E1526]/80 backdrop-blur-xl border-2 border-slate-800 shadow-[0_20px_50px_rgba(0,0,0,0.6)] p-6 sm:p-8">
           
-          {/* Card 1: Works on All Android Devices */}
-          <div className="rounded-3xl bg-[#09111D] border-2 border-slate-800 hover:border-[#00FF87]/50 p-6 sm:p-8 transition-all shadow-xl flex flex-col justify-between">
-            <div>
-              <div className="w-12 h-12 rounded-2xl bg-[#00FF87]/15 border border-[#00FF87]/40 flex items-center justify-center text-[#00FF87] mb-5 shadow-[0_0_20px_rgba(0,255,135,0.2)]">
-                <Smartphone className="w-6 h-6" />
+          <div className="flex items-center justify-between pb-5 mb-5 border-b border-slate-800/80">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-[#00FF88]/15 border border-[#00FF88]/40 flex items-center justify-center text-[#00FF88]">
+                <Smartphone className="w-5 h-5" />
               </div>
-
-              <div className="inline-block text-[11px] font-mono font-bold text-[#00FF87] bg-emerald-950/90 px-3 py-1 rounded-full border border-[#00FF87]/30 mb-2">
-                Android 5.0 (Lollipop) to Android 15+
-              </div>
-
-              <h3 className="text-2xl font-bold text-white tracking-tight mb-3">
-                সকল স্মার্টফোন ব্র্যান্ডে ১০০% সমর্থিত
-              </h3>
-
-              <p className="text-sm text-slate-300 leading-relaxed mb-6">
-                আপনার ফোনটি পুরাতন হোক বা ২০২৩-২০২৬ সালের লেটেস্ট ফ্ল্যাগশিপ, সুরক্ষা ভল্টের ইউনিভার্সাল এপিকে আর্কিটেকচার প্রতিটি ফোনে নিখুঁতভাবে ইন্সটল হবে। কোনো রুট পারমিশনের প্রয়োজন নেই।
-              </p>
-
-              {/* Supported brands tags */}
-              <div className="flex flex-wrap gap-2 pt-2">
-                {brands.map((brand) => (
-                  <span
-                    key={brand}
-                    className="text-[11px] font-medium text-slate-300 bg-slate-900 border border-slate-800 px-2.5 py-1 rounded-lg"
-                  >
-                    ✓ {brand}
-                  </span>
-                ))}
+              <div>
+                <h3 className="text-base sm:text-lg font-bold text-white">Suraksha Vault Android Build</h3>
+                <p className="text-xs text-slate-400 font-mono">v1.0.4 Universal Stable Release</p>
               </div>
             </div>
 
-            <div className="mt-6 pt-4 border-t border-slate-800 text-xs text-slate-400 flex items-center justify-between">
-              <span>ন্যূনতম র‍্যাম: 1 GB</span>
-              <span className="text-[#00FF87] font-semibold">জিরো ল্যাগ অপ্টিমাইজড</span>
-            </div>
+            <span className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-950 text-[#00FF88] text-xs font-mono font-bold border border-[#00FF88]/30">
+              <Check className="w-3.5 h-3.5" />
+              VERIFIED
+            </span>
           </div>
 
-          {/* Card 2: Seamless Offline & Online Use */}
-          <div className="rounded-3xl bg-[#09111D] border-2 border-slate-800 hover:border-[#00FF87]/50 p-6 sm:p-8 transition-all shadow-xl flex flex-col justify-between">
-            <div>
-              <div className="w-12 h-12 rounded-2xl bg-cyan-500/15 border border-cyan-500/40 flex items-center justify-center text-cyan-400 mb-5 shadow-[0_0_20px_rgba(0,223,223,0.2)]">
-                <Layers className="w-6 h-6" />
+          {/* Table Rows */}
+          <div className="divide-y divide-slate-800/70">
+            {specs.map((row, idx) => (
+              <div key={idx} className="py-3.5 sm:py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 sm:gap-4 text-xs sm:text-sm">
+                <span className="text-slate-400 font-medium sm:w-2/5">
+                  {row.label}
+                </span>
+                <span className="font-semibold text-white sm:w-3/5 sm:text-right">
+                  {row.val}
+                </span>
               </div>
-
-              <div className="inline-block text-[11px] font-mono font-bold text-cyan-400 bg-cyan-950/90 px-3 py-1 rounded-full border border-cyan-500/30 mb-2">
-                হাইব্রিড আর্কিটেকচার (অফলাইন + অনলাইন)
-              </div>
-
-              <h3 className="text-2xl font-bold text-white tracking-tight mb-3">
-                ইন্টারনেট থাকুক বা না থাকুক—ভল্ট সবসময় প্রস্তুত
-              </h3>
-
-              <p className="text-sm text-slate-300 leading-relaxed mb-6">
-                ইন্টারনেট সংযোগ ছাড়াই অ্যাপ লকার, ফটো ভল্ট ও নোটবুক সম্পূর্ণ লোকাল মোডে কাজ করে। যখনই ইন্টারনেট পাবেন, ব্যাকআপ স্বয়ংক্রিয়ভাবে ক্লাউড সার্ভারের সাথে সিঙ্ক হয়ে যাবে।
-              </p>
-
-              {/* Feature comparison */}
-              <div className="space-y-3">
-                <div className="p-3 rounded-2xl bg-slate-950/80 border border-slate-800 flex items-start gap-3">
-                  <div className="w-6 h-6 rounded-lg bg-emerald-950 flex items-center justify-center text-[#00FF87] shrink-0 mt-0.5">
-                    <WifiOff className="w-3.5 h-3.5" />
-                  </div>
-                  <div>
-                    <h4 className="text-xs font-bold text-white">১০০% অফলাইন অপারেশন (No Internet Needed)</h4>
-                    <p className="text-[11px] text-slate-400 mt-0.5">
-                      লোকাল AES-256 এনক্রিপশনের মাধ্যমে ফোনের মেমোরিতে সব ফাইল ১০০% অফলাইনে সুরক্ষিত থাকে।
-                    </p>
-                  </div>
-                </div>
-
-                <div className="p-3 rounded-2xl bg-slate-950/80 border border-slate-800 flex items-start gap-3">
-                  <div className="w-6 h-6 rounded-lg bg-cyan-950 flex items-center justify-center text-cyan-400 shrink-0 mt-0.5">
-                    <Cloud className="w-3.5 h-3.5" />
-                  </div>
-                  <div>
-                    <h4 className="text-xs font-bold text-white">স্মার্ট অনলাইন সিঙ্ক (Auto Cloud Backup)</h4>
-                    <p className="text-[11px] text-slate-400 mt-0.5">
-                      ওয়াই-ফাই বা মোবাইল ডেটা পেলে মুহূর্তেই সিকিউর ক্লাউডে এনক্রিপ্ট হয়ে স্বয়ংক্রিয়ভাবে সংরক্ষিত হয়।
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="mt-6 pt-4 border-t border-slate-800 text-xs text-slate-400 flex items-center justify-between">
-              <span>ডাটা খরচ: শূন্য (অফলাইন মোডে)</span>
-              <span className="text-cyan-400 font-semibold">নিরাপদ ও নির্ভরযোগ্য</span>
-            </div>
+            ))}
           </div>
 
         </div>

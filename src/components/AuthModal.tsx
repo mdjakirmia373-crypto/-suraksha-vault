@@ -4,9 +4,10 @@ import { X, User, Mail, Lock, RotateCcw, Eye, EyeOff, Shield, UserPlus, LogIn, C
 interface AuthModalProps {
   initialMode: 'login' | 'signup';
   onClose: () => void;
+  onAuthSuccess?: (user: { name: string; email: string }) => void;
 }
 
-export const AuthModal: React.FC<AuthModalProps> = ({ initialMode, onClose }) => {
+export const AuthModal: React.FC<AuthModalProps> = ({ initialMode, onClose, onAuthSuccess }) => {
   const [mode, setMode] = useState<'login' | 'signup'>(initialMode);
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -18,9 +19,19 @@ export const AuthModal: React.FC<AuthModalProps> = ({ initialMode, onClose }) =>
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setIsSuccess(true);
+
+    const userName = name.trim() || (email.split('@')[0] ? email.split('@')[0] : 'জাকির আহমেদ');
+    const userEmail = email.trim() || 'user@suraksha.com';
+
     setTimeout(() => {
+      if (onAuthSuccess) {
+        onAuthSuccess({
+          name: userName,
+          email: userEmail,
+        });
+      }
       onClose();
-    }, 2000);
+    }, 800);
   };
 
   return (
